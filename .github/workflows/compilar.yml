@@ -13,7 +13,7 @@ jobs:
       - name: Instalar herramientas
         run: |
           sudo apt-get update
-          sudo apt-get install -y binutils-arm-none-eabi gcc-arm-none-eabi libpng-dev build-essential
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends binutils-arm-none-eabi libpng-dev build-essential
 
       - name: Compilar agbcc (compilador del proyecto)
         run: |
