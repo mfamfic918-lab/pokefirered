@@ -1,0 +1,1350 @@
+diff --git a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
+index edc6ac3..8a1d84c 100644
+--- a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
++++ b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
+@@ -43,6 +43,181 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
+ 	releaseall
+ 	end
+ 
++PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu::
++	message Nz_Text_WhatSettings
++	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MAIN, FALSE
++	switch VAR_RESULT
++	case 0, Nz_EventScript_MenuRules1
++	case 1, Nz_EventScript_MenuRules2
++	case 2, Nz_EventScript_MenuRandom
++	goto Nz_EventScript_MenuExit
++	end
++
++Nz_EventScript_MenuExit::
++	closemessage
++	special BedroomPC
++	waitstate
++	end
++
++Nz_EventScript_MenuRules1::
++	message Nz_Text_WhatSettings
++	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_RULES_1, FALSE
++	switch VAR_RESULT
++	case 0, Nz_EventScript_R1_0
++	case 1, Nz_EventScript_R1_1
++	case 2, Nz_EventScript_R1_2
++	case 3, Nz_EventScript_R1_3
++	case 4, Nz_EventScript_R1_4
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_MenuRules2::
++	message Nz_Text_WhatSettings
++	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_RULES_2, FALSE
++	switch VAR_RESULT
++	case 0, Nz_EventScript_R2_0
++	case 1, Nz_EventScript_R2_1
++	case 2, Nz_EventScript_R2_2
++	case 3, Nz_EventScript_R2_3
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_MenuRandom::
++	message Nz_Text_WhatSettings
++	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_RANDOM, FALSE
++	switch VAR_RESULT
++	case 0, Nz_EventScript_Rn_0
++	case 1, Nz_EventScript_Rn_1
++	case 2, Nz_EventScript_Rn_2
++	case 3, Nz_EventScript_Rn_3
++	case 4, Nz_EventScript_Rn_4
++	case 5, Nz_EventScript_Rn_5
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_R1_0::
++	setvar VAR_0x8004, 0
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules1
++	end
++
++Nz_EventScript_R1_1::
++	setvar VAR_0x8004, 1
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules1
++	end
++
++Nz_EventScript_R1_2::
++	setvar VAR_0x8004, 2
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules1
++	end
++
++Nz_EventScript_R1_3::
++	setvar VAR_0x8004, 3
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules1
++	end
++
++Nz_EventScript_R1_4::
++	setvar VAR_0x8004, 4
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules1
++	end
++
++Nz_EventScript_R2_0::
++	setvar VAR_0x8004, 5
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules2
++	end
++
++Nz_EventScript_R2_1::
++	setvar VAR_0x8004, 6
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules2
++	end
++
++Nz_EventScript_R2_2::
++	setvar VAR_0x8004, 7
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules2
++	end
++
++Nz_EventScript_R2_3::
++	setvar VAR_0x8004, 8
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRules2
++	end
++
++Nz_EventScript_Rn_0::
++	setvar VAR_0x8004, 9
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRandom
++	end
++
++Nz_EventScript_Rn_1::
++	setvar VAR_0x8004, 10
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRandom
++	end
++
++Nz_EventScript_Rn_2::
++	setvar VAR_0x8004, 11
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRandom
++	end
++
++Nz_EventScript_Rn_3::
++	setvar VAR_0x8004, 12
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRandom
++	end
++
++Nz_EventScript_Rn_4::
++	setvar VAR_0x8004, 13
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRandom
++	end
++
++Nz_EventScript_Rn_5::
++	setvar VAR_0x8004, 14
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuRandom
++	end
++
++Nz_EventScript_ToggleCall::
++	special NzBufferOptionPrompt
++	msgbox gStringVar4, MSGBOX_YESNO
++	goto_if_eq VAR_RESULT, YES, Nz_EventScript_ToggleDo
++	return
++
++Nz_EventScript_ToggleDo::
++	special NzToggleOption
++	msgbox Nz_Text_Changed, MSGBOX_DEFAULT
++	return
++
++Nz_EventScript_GameOver::
++	lockall
++	msgbox Nz_Text_GameOver, MSGBOX_DEFAULT
++	special NzSoftReset
++	end
++
++Nz_Text_WhatSettings:
++	.string "¿Qué ajustes quieres cambiar?$"
++
++Nz_Text_Changed:
++	.string "{STR_VAR_1}:\n{STR_VAR_2}$"
++
++Nz_Text_GameOver:
++	.string "¡GAME OVER!\nTodo tu equipo ha caído.\p"
++	.string "El reto Nuzlocke ha terminado.\n"
++	.string "Empieza una partida nueva.\p"
++	.string "El juego se reiniciará.$"
++
+ EventScript_PalletTown_PlayersHouse_2F_ShutDownPC::
+ 	setvar VAR_0x8004, 1
+ 	playse SE_PC_OFF
+diff --git a/data/maps/PalletTown_ProfessorOaksLab/scripts.inc b/data/maps/PalletTown_ProfessorOaksLab/scripts.inc
+index 90adf86..0418f4f 100644
+--- a/data/maps/PalletTown_ProfessorOaksLab/scripts.inc
++++ b/data/maps/PalletTown_ProfessorOaksLab/scripts.inc
+@@ -1073,6 +1073,7 @@ PalletTown_ProfessorOaksLab_EventScript_BulbasaurBall::
+ 	setvar PLAYER_STARTER_SPECIES, SPECIES_BULBASAUR
+ 	setvar RIVAL_STARTER_SPECIES, SPECIES_CHARMANDER
+ 	setvar RIVAL_STARTER_ID, LOCALID_CHARMANDER_BALL
++	special NzRandomizeStarters
+ 	goto_if_ge VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3, PalletTown_ProfessorOaksLab_EventScript_LastPokeBall
+ 	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2, PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice
+ 	msgbox PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls
+@@ -1084,11 +1085,26 @@ PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice::
+ 	waitmovement 0
+ 	showmonpic PLAYER_STARTER_SPECIES, 10, 3
+ 	textcolor NPC_TEXT_COLOR_MALE
++	specialvar VAR_RESULT, NzIsRandomStarters
++	goto_if_eq VAR_RESULT, TRUE, PalletTown_ProfessorOaksLab_EventScript_ConfirmRandomStarter
+ 	goto_if_eq PLAYER_STARTER_NUM, 0, PalletTown_ProfessorOaksLab_EventScript_ConfirmBulbasaur
+ 	goto_if_eq PLAYER_STARTER_NUM, 1, PalletTown_ProfessorOaksLab_EventScript_ConfirmSquirtle
+ 	goto_if_eq PLAYER_STARTER_NUM, 2, PalletTown_ProfessorOaksLab_EventScript_ConfirmCharmander
+ 	end
+ 
++PalletTown_ProfessorOaksLab_EventScript_ConfirmRandomStarter::
++	bufferspeciesname STR_VAR_1, PLAYER_STARTER_SPECIES
++	msgbox PalletTown_ProfessorOaksLab_Text_OakChoosingRandom, MSGBOX_YESNO
++	goto_if_eq VAR_RESULT, YES, PalletTown_ProfessorOaksLab_EventScript_ChoseStarter
++	goto_if_eq VAR_RESULT, NO, PalletTown_ProfessorOaksLab_EventScript_DeclinedStarter
++	end
++
++PalletTown_ProfessorOaksLab_Text_OakChoosingRandom:
++	.string "¡Vaya! Dentro de esa POKé BALL\n"
++	.string "hay un {STR_VAR_1}.\p"
++	.string "{PLAYER}, ¿quieres que sea\n"
++	.string "tu primer POKéMON?$"
++
+ PalletTown_ProfessorOaksLab_EventScript_ConfirmBulbasaur::
+ 	msgbox PalletTown_ProfessorOaksLab_Text_OakChoosingBulbasaur, MSGBOX_YESNO
+ 	goto_if_eq VAR_RESULT, YES, PalletTown_ProfessorOaksLab_EventScript_ChoseStarter
+@@ -1216,6 +1232,7 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
+ 	setvar PLAYER_STARTER_SPECIES, SPECIES_SQUIRTLE
+ 	setvar RIVAL_STARTER_SPECIES, SPECIES_BULBASAUR
+ 	setvar RIVAL_STARTER_ID, LOCALID_BULBASAUR_BALL
++	special NzRandomizeStarters
+ 	goto_if_ge VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3, PalletTown_ProfessorOaksLab_EventScript_LastPokeBall
+ 	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2, PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice
+ 	msgbox PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls
+@@ -1229,6 +1246,7 @@ PalletTown_ProfessorOaksLab_EventScript_CharmanderBall::
+ 	setvar PLAYER_STARTER_SPECIES, SPECIES_CHARMANDER
+ 	setvar RIVAL_STARTER_SPECIES, SPECIES_SQUIRTLE
+ 	setvar RIVAL_STARTER_ID, LOCALID_SQUIRTLE_BALL
++	special NzRandomizeStarters
+ 	goto_if_ge VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3, PalletTown_ProfessorOaksLab_EventScript_LastPokeBall
+ 	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2, PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice
+ 	msgbox PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls
+diff --git a/data/scripts/obtain_item.inc b/data/scripts/obtain_item.inc
+index c904278..2c51af9 100644
+--- a/data/scripts/obtain_item.inc
++++ b/data/scripts/obtain_item.inc
+@@ -107,6 +107,7 @@ Std_FindItem::
+ 	lock
+ 	faceplayer
+ 	waitse
++	special NzRandomizeItem
+ 	copyvar VAR_0x8004, VAR_0x8000
+ 	copyvar VAR_0x8005, VAR_0x8001
+ 	checkitemspace VAR_0x8000, VAR_0x8001
+@@ -150,6 +151,9 @@ EventScript_HiddenItemScript::
+ 	textcolor NPC_TEXT_COLOR_NEUTRAL
+ 	waitse
+ 	goto_if_eq VAR_0x8005, 0, EventScript_TryPickUpHiddenCoins
++	copyvar VAR_0x8000, VAR_0x8005
++	special NzRandomizeItem
++	copyvar VAR_0x8005, VAR_0x8000
+ 	call EventScript_TryPickUpHiddenItem
+ 	goto_if_eq VAR_0x8007, TRUE, EventScript_PickedUpHiddenItem
+ 	goto_if_eq VAR_0x8007, FALSE, EventScript_NoRoomForHiddenItem
+diff --git a/data/specials.inc b/data/specials.inc
+index d880bf6..f811ec0 100644
+--- a/data/specials.inc
++++ b/data/specials.inc
+@@ -452,4 +452,11 @@ gSpecials::
+ 	def_special UpdateLoreleiDollCollection
+ 	def_special LoopWingFlapSound
+ 	def_special CreateEnemyEventMon
++	def_special NzBufferOptionPrompt
++	def_special NzBufferNameState
++	def_special NzToggleOption
++	def_special NzRandomizeItem
++	def_special NzSoftReset
++	def_special NzRandomizeStarters
++	def_special NzIsRandomStarters
+ gSpecialsEnd::
+diff --git a/include/constants/menu.h b/include/constants/menu.h
+index 7c36f36..ecf7f38 100644
+--- a/include/constants/menu.h
++++ b/include/constants/menu.h
+@@ -69,6 +69,10 @@
+ #define MULTICHOICE_62                                         62
+ #define MULTICHOICE_JOIN_OR_LEAD                               63
+ #define MULTICHOICE_TRAINER_TOWER_MODE                         64
++#define MULTICHOICE_NZ_MAIN                                    65
++#define MULTICHOICE_NZ_RULES_1                                 66
++#define MULTICHOICE_NZ_RULES_2                                 67
++#define MULTICHOICE_NZ_RANDOM                                  68
+ 
+ #define MULTICHOICE_NONE                                      255
+ 
+diff --git a/include/event_scripts.h b/include/event_scripts.h
+index 4a386d5..42cb361 100644
+--- a/include/event_scripts.h
++++ b/include/event_scripts.h
+@@ -1148,6 +1148,8 @@ extern const u8 EventScript_ResetAllMapFlags[];
+ 
+ // player_pc
+ extern const u8 EventScript_PalletTown_PlayersHouse_2F_ShutDownPC[];
++extern const u8 PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu[];
++extern const u8 Nz_EventScript_GameOver[];
+ 
+ // field_screen_effect
+ extern const u8 EventScript_AfterWhiteOutMomHeal[];
+diff --git a/include/global.h b/include/global.h
+index 77155b0..b33679d 100644
+--- a/include/global.h
++++ b/include/global.h
+@@ -756,6 +756,14 @@ struct ExternalEventFlags
+ 
+ } __attribute__((packed));/*size = 0x15*/
+ 
++struct NuzlockeData
++{
++    u16 options;        // bitmask, see nuzlocke.h
++    u16 seed;           // randomizer seed (0 = not generated yet)
++    u8 areaUsed[32];    // one bit per region map section already used for a capture
++    u8 reserved[364];
++}; // size: 400 (0x190)
++
+ struct SaveBlock1
+ {
+     /*0x0000*/ struct Coords16 pos;
+@@ -806,7 +814,7 @@ struct SaveBlock1
+     /*0x30D0*/ struct Roamer roamer;
+     /*0x30EC*/ struct EnigmaBerry enigmaBerry;
+     /*0x3120*/ struct MysteryGiftSave mysteryGift;
+-    /*0x348C*/ u8 unused_348C[400];
++    /*0x348C*/ struct NuzlockeData nz; // formerly unused_348C[400]
+     /*0x361C*/ struct RamScript ramScript;
+     /*0x3A08*/ struct RecordMixingGift recordMixingGift; // unused
+     /*0x3A18*/ u8 seen2[DEX_FLAGS_NO];
+diff --git a/include/nuzlocke.h b/include/nuzlocke.h
+new file mode 100644
+index 0000000..62a257f
+--- /dev/null
++++ b/include/nuzlocke.h
+@@ -0,0 +1,53 @@
++#ifndef GUARD_NUZLOCKE_H
++#define GUARD_NUZLOCKE_H
++
++#include "global.h"
++
++// Bit index of each option (stored in gSaveBlock1Ptr->nz.options)
++enum
++{
++    NZ_BIT_CAPTURE,     // only the first wild encounter of each area can be caught
++    NZ_BIT_DEATH,       // fainted Pokemon are dead
++    NZ_BIT_NICKNAME,    // forced nickname on capture
++    NZ_BIT_SET_MODE,    // forced "Set" battle style
++    NZ_BIT_GAMEOVER,    // whiteout = game over
++    NZ_BIT_LEVELCAP,    // level cap by next gym leader
++    NZ_BIT_NOHEAL,      // no healing items in battle
++    NZ_BIT_SHINY,       // shinies ignore the area rule
++    NZ_BIT_GRAVEYARD,   // dead mons go to the PC instead of being released
++    NZ_BIT_RND_WILD,    // random wild Pokemon + starters
++    NZ_BIT_RND_TRAINER, // random trainer teams
++    NZ_BIT_RND_MOVES,   // shuffled learnset moves
++    NZ_BIT_RND_ABILITY, // shuffled abilities
++    NZ_BIT_RND_ITEMS,   // random overworld items
++    NZ_BIT_BAN_LEGEND,  // randomizer never generates legendaries / pseudo-legendaries
++    NZ_OPT_COUNT
++};
++
++#define NZ_ON(bit) ((gSaveBlock1Ptr->nz.options & (1 << (bit))) != 0)
++
++// Hooks used by the rest of the game
++void Nz_OnBattleStart(void);
++void Nz_OnBattleEnd(void);
++void Nz_OnWhiteOut(void);
++bool8 Nz_ShouldGameOver(void);
++bool8 Nz_IsItemBlockedInBattle(u16 itemId);
++u32 Nz_ClampExp(struct Pokemon *mon, u32 gain);
++bool8 Nz_IsMonAtLevelCap(struct Pokemon *mon);
++u16 Nz_RandomSpecies(u16 species, u32 salt);
++u16 Nz_WildSpecies(u16 species);
++u16 Nz_TrainerSpecies(u16 species, u16 trainerNum);
++u16 Nz_RandomMove(u16 move, u16 species);
++u8 Nz_RandomAbility(u16 species, u8 abilityNum, u8 original);
++void Nz_SetTrainerMoves(struct Pokemon *mon, const u16 *moves, u16 origSpecies);
++
++// Specials used by scripts
++void NzBufferOptionPrompt(void);
++void NzBufferNameState(void);
++void NzToggleOption(void);
++void NzRandomizeItem(void);
++void NzSoftReset(void);
++void NzRandomizeStarters(void);
++u16 NzIsRandomStarters(void);
++
++#endif // GUARD_NUZLOCKE_H
+diff --git a/ld_script.ld b/ld_script.ld
+index 9a4b450..664dd30 100644
+--- a/ld_script.ld
++++ b/ld_script.ld
+@@ -223,6 +223,7 @@ SECTIONS {
+         src/battle_tower.o(.text);
+         src/battle_controller_oak_old_man.o(.text);
+         src/player_pc.o(.text);
++        src/nuzlocke.o(.text);
+         src/intro.o(.text);
+         src/battle_anim_special.o(.text);
+         src/hall_of_fame.o(.text);
+@@ -519,6 +520,7 @@ SECTIONS {
+         src/battle_tower.o(.rodata);
+         src/battle_controller_oak_old_man.o(.rodata);
+         src/player_pc.o(.rodata);
++        src/nuzlocke.o(.rodata);
+         src/intro.o(.rodata);
+         src/battle_anim_special.o(.rodata);
+         src/hall_of_fame.o(.rodata);
+diff --git a/src/battle_main.c b/src/battle_main.c
+index 64c9e59..871b835 100644
+--- a/src/battle_main.c
++++ b/src/battle_main.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "battle.h"
+ #include "battle_anim.h"
+@@ -611,6 +612,7 @@ const u8 *const gStatusConditionStringsTable[][2] =
+ 
+ void CB2_InitBattle(void)
+ {
++    Nz_OnBattleStart();
+     MoveSaveBlocks_ResetHeap();
+     AllocateBattleResources();
+     AllocateBattleSpritesData();
+@@ -1569,42 +1571,38 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
+             {
+                 const struct TrainerMonNoItemDefaultMoves *partyData = gTrainers[trainerNum].party.NoItemDefaultMoves;
+ 
+-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
+-                    nameHash += gSpeciesNames[partyData[i].species][j];
++                for (j = 0; gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j] != EOS; j++)
++                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
+ 
+                 personalityValue += nameHash << 8;
+                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                 break;
+             }
+             case F_TRAINER_PARTY_CUSTOM_MOVESET:
+             {
+                 const struct TrainerMonNoItemCustomMoves *partyData = gTrainers[trainerNum].party.NoItemCustomMoves;
+ 
+-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
+-                    nameHash += gSpeciesNames[partyData[i].species][j];
++                for (j = 0; gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j] != EOS; j++)
++                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
+ 
+                 personalityValue += nameHash << 8;
+                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+ 
+-                for (j = 0; j < MAX_MON_MOVES; j++)
+-                {
+-                    SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
+-                    SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
+-                }
++                Nz_SetTrainerMoves(&party[i], partyData[i].moves, partyData[i].species);
+                 break;
+             }
+             case F_TRAINER_PARTY_HELD_ITEM:
+             {
+                 const struct TrainerMonItemDefaultMoves *partyData = gTrainers[trainerNum].party.ItemDefaultMoves;
+ 
+-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
+-                    nameHash += gSpeciesNames[partyData[i].species][j];
++                for (j = 0; gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j] != EOS; j++)
++                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
+ 
+                 personalityValue += nameHash << 8;
+                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+ 
+                 SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
+                 break;
+@@ -1613,19 +1611,15 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
+             {
+                 const struct TrainerMonItemCustomMoves *partyData = gTrainers[trainerNum].party.ItemCustomMoves;
+ 
+-                for (j = 0; gSpeciesNames[partyData[i].species][j] != EOS; j++)
+-                    nameHash += gSpeciesNames[partyData[i].species][j];
++                for (j = 0; gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j] != EOS; j++)
++                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
+ 
+                 personalityValue += nameHash << 8;
+                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                 SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
+ 
+-                for (j = 0; j < MAX_MON_MOVES; j++)
+-                {
+-                    SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
+-                    SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
+-                }
++                Nz_SetTrainerMoves(&party[i], partyData[i].moves, partyData[i].species);
+                 break;
+             }
+             }
+@@ -3914,6 +3908,7 @@ static void WaitForEvoSceneToFinish(void)
+ 
+ static void ReturnFromBattleToOverworld(void)
+ {
++    Nz_OnBattleEnd();
+     if (!(gBattleTypeFlags & BATTLE_TYPE_LINK))
+     {
+         RandomlyGivePartyPokerus(gPlayerParty);
+diff --git a/src/battle_script_commands.c b/src/battle_script_commands.c
+index 67f90a3..c8b0133 100644
+--- a/src/battle_script_commands.c
++++ b/src/battle_script_commands.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "item.h"
+ #include "util.h"
+@@ -3244,6 +3245,8 @@ static void Cmd_getexp(void)
+                         i = STRINGID_EMPTYSTRING4;
+                     }
+ 
++                    gBattleMoveDamage = Nz_ClampExp(&gPlayerParty[gBattleStruct->expGetterMonId], gBattleMoveDamage);
++
+                     // get exp getter battlerId
+                     if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+                     {
+@@ -9791,6 +9794,13 @@ static void Cmd_trygivecaughtmonnick(void)
+     switch (gBattleCommunication[MULTIUSE_STATE])
+     {
+     case 0:
++        if (NZ_ON(NZ_BIT_NICKNAME))
++        {
++            // Forced nickname: skip the yes/no question
++            gBattleCommunication[MULTIUSE_STATE] = 2;
++            BeginFastPaletteFade(3);
++            break;
++        }
+         HandleBattleWindow(23, 8, 29, 13, 0);
+         BattlePutTextOnWindow(gText_BattleYesNoChoice, B_WIN_YESNO);
+         gBattleCommunication[MULTIUSE_STATE]++;
+diff --git a/src/field_screen_effect.c b/src/field_screen_effect.c
+index af00120..238cd53 100644
+--- a/src/field_screen_effect.c
++++ b/src/field_screen_effect.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "field_screen_effect.h"
+ #include "overworld.h"
+@@ -438,14 +439,20 @@ static void Task_RushInjuredPokemonToCenter(u8 taskId)
+         if (FieldFadeTransitionBackgroundEffectIsFinished() == TRUE)
+         {
+             DestroyTask(taskId);
+-            ScriptContext_SetupScript(EventScript_AfterWhiteOutHeal);
++            if (Nz_ShouldGameOver())
++                ScriptContext_SetupScript(Nz_EventScript_GameOver);
++            else
++                ScriptContext_SetupScript(EventScript_AfterWhiteOutHeal);
+         }
+         break;
+     case 6:
+         if (FieldFadeTransitionBackgroundEffectIsFinished() == TRUE)
+         {
+             DestroyTask(taskId);
+-            ScriptContext_SetupScript(EventScript_AfterWhiteOutMomHeal);
++            if (Nz_ShouldGameOver())
++                ScriptContext_SetupScript(Nz_EventScript_GameOver);
++            else
++                ScriptContext_SetupScript(EventScript_AfterWhiteOutMomHeal);
+         }
+         break;
+     }
+diff --git a/src/field_specials.c b/src/field_specials.c
+index 08b7ced..8378bcb 100644
+--- a/src/field_specials.c
++++ b/src/field_specials.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "quest_log.h"
+ #include "list_menu.h"
+@@ -1526,6 +1527,8 @@ static u16 GetStarterSpeciesById(u16 idx)
+ {
+     if (idx >= NELEMS(sStarterSpecies))
+         idx = 0;
++    if (NZ_ON(NZ_BIT_RND_WILD))
++        return Nz_RandomSpecies(sStarterSpecies[idx], 0x1000 + idx);
+     return sStarterSpecies[idx];
+ }
+ 
+diff --git a/src/item_menu.c b/src/item_menu.c
+index 8f52ead..9e1b8cb 100644
+--- a/src/item_menu.c
++++ b/src/item_menu.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "bag.h"
+ #include "battle_controllers.h"
+@@ -1350,7 +1351,7 @@ static void OpenContextMenu(u8 taskId)
+             sContextMenuItemsPtr = sContextMenuItemsBuffer;
+             sContextMenuNumItems = 2;
+         }
+-        else if (ItemId_GetBattleUsage(gSpecialVar_ItemId))
++        else if (ItemId_GetBattleUsage(gSpecialVar_ItemId) && !Nz_IsItemBlockedInBattle(gSpecialVar_ItemId))
+         {
+             sContextMenuItemsPtr = sContextMenuItems_BattleUse;
+             sContextMenuNumItems = 2;
+diff --git a/src/nuzlocke.c b/src/nuzlocke.c
+new file mode 100644
+index 0000000..2f82c91
+--- /dev/null
++++ b/src/nuzlocke.c
+@@ -0,0 +1,441 @@
++#include "global.h"
++#include "gflib.h"
++#include "string_util.h"
++#include "random.h"
++#include "event_data.h"
++#include "item.h"
++#include "pokemon.h"
++#include "pokemon_storage_system.h"
++#include "overworld.h"
++#include "main.h"
++#include "battle.h"
++#include "nuzlocke.h"
++#include "characters.h"
++#include "constants/species.h"
++#include "constants/items.h"
++#include "constants/flags.h"
++#include "constants/moves.h"
++#include "constants/abilities.h"
++#include "constants/global.h"
++#include "constants/region_map_sections.h"
++#include "constants/opponents.h"
++#include "constants/vars.h"
++
++u8 Nz_SendMonToPC(struct Pokemon *mon); // pokemon.c
++
++static bool8 sCatchBlocked;
++static bool8 sGameOver;
++
++static const u8 sText_On[] = _("ACTIVADO");
++static const u8 sText_Off[] = _("DESACTIVADO");
++static const u8 sText_PageBreak[] = _("\p");
++static const u8 sText_Colon[] = _(": ");
++static const u8 sText_Ask[] = _("\n¿Quieres cambiarlo?");
++
++static const u8 sName_0[] = _("Captura por zona");
++static const u8 sName_1[] = _("Muerte permanente");
++static const u8 sName_2[] = _("Motes obligatorios");
++static const u8 sName_3[] = _("Combate fijo");
++static const u8 sName_4[] = _("Game Over total");
++static const u8 sName_5[] = _("Límite de nivel");
++static const u8 sName_6[] = _("Sin curar en combate");
++static const u8 sName_7[] = _("Shiny libre");
++static const u8 sName_8[] = _("Muertos a la PC");
++static const u8 sName_9[] = _("Salvajes e iniciales");
++static const u8 sName_10[] = _("Entrenadores");
++static const u8 sName_11[] = _("Movimientos");
++static const u8 sName_12[] = _("Habilidades");
++static const u8 sName_13[] = _("Objetos del suelo");
++static const u8 sName_14[] = _("Sin legendarios");
++
++static const u8 sDesc_0[] = _("Solo puedes capturar el primer\nPokémon de cada zona.");
++static const u8 sDesc_1[] = _("Un Pokémon debilitado se\nconsidera muerto.");
++static const u8 sDesc_2[] = _("Debes ponerle un mote a cada\nPokémon que captures.");
++static const u8 sDesc_3[] = _("Fuerza el estilo de combate\nFijo (sin cambio gratis).");
++static const u8 sDesc_4[] = _("Si todo tu equipo cae, pierdes\ny el juego se reinicia.");
++static const u8 sDesc_5[] = _("No subes por encima del nivel\ndel As del próximo líder.");
++static const u8 sDesc_6[] = _("No se pueden usar pociones ni\nrevivires en combate.");
++static const u8 sDesc_7[] = _("Un Pokémon variocolor se puede\ncapturar aunque la zona esté usada.");
++static const u8 sDesc_8[] = _("Los Pokémon muertos van a la PC\nen vez de ser liberados.");
++static const u8 sDesc_9[] = _("Los Pokémon salvajes y los\niniciales son aleatorios.");
++static const u8 sDesc_10[] = _("Los equipos de entrenadores y\nlíderes son aleatorios.");
++static const u8 sDesc_11[] = _("Los movimientos que aprende\ncada Pokémon se mezclan.");
++static const u8 sDesc_12[] = _("Las habilidades de cada\nespecie se mezclan.");
++static const u8 sDesc_13[] = _("Los objetos del suelo son\naleatorios (menos los clave).");
++static const u8 sDesc_14[] = _("El aleatorizador no genera\nlegendarios ni pseudolegendarios.");
++
++static const u8 *const sOptionNames[NZ_OPT_COUNT] = {
++    sName_0, sName_1, sName_2, sName_3, sName_4, sName_5, sName_6, sName_7,
++    sName_8, sName_9, sName_10, sName_11, sName_12, sName_13, sName_14
++};
++
++static const u8 *const sOptionDescs[NZ_OPT_COUNT] = {
++    sDesc_0, sDesc_1, sDesc_2, sDesc_3, sDesc_4, sDesc_5, sDesc_6, sDesc_7,
++    sDesc_8, sDesc_9, sDesc_10, sDesc_11, sDesc_12, sDesc_13, sDesc_14
++};
++
++// ---------------------------------------------------------------------------
++// Menu helpers (called from scripts)
++// ---------------------------------------------------------------------------
++
++void NzBufferOptionPrompt(void)
++{
++    u8 idx = gSpecialVar_0x8004;
++
++    if (idx >= NZ_OPT_COUNT)
++        idx = 0;
++    StringCopy(gStringVar4, sOptionDescs[idx]);
++    StringAppend(gStringVar4, sText_PageBreak);
++    StringAppend(gStringVar4, sOptionNames[idx]);
++    StringAppend(gStringVar4, sText_Colon);
++    StringAppend(gStringVar4, NZ_ON(idx) ? sText_On : sText_Off);
++    StringAppend(gStringVar4, sText_Ask);
++}
++
++void NzBufferNameState(void)
++{
++    u8 idx = gSpecialVar_0x8004;
++
++    if (idx >= NZ_OPT_COUNT)
++        idx = 0;
++    StringCopy(gStringVar1, sOptionNames[idx]);
++    StringCopy(gStringVar2, NZ_ON(idx) ? sText_On : sText_Off);
++}
++
++void NzToggleOption(void)
++{
++    u8 idx = gSpecialVar_0x8004;
++
++    if (idx >= NZ_OPT_COUNT)
++        return;
++    gSaveBlock1Ptr->nz.options ^= (1 << idx);
++    if (gSaveBlock1Ptr->nz.seed == 0 && idx >= NZ_BIT_RND_WILD)
++        gSaveBlock1Ptr->nz.seed = (Random() % 0xFFFE) + 1;
++    NzBufferNameState();
++}
++
++void NzSoftReset(void)
++{
++    DoSoftReset();
++}
++
++// Oak's Lab: VAR_TEMP_1 = ball chosen by the player (0 Bulbasaur, 1 Squirtle,
++// 2 Charmander), VAR_TEMP_2 = player's starter species, VAR_TEMP_3 = rival's.
++void NzRandomizeStarters(void)
++{
++    static const u16 sPlayerBase[] = { SPECIES_BULBASAUR, SPECIES_SQUIRTLE, SPECIES_CHARMANDER };
++    static const u16 sRivalBase[] = { SPECIES_CHARMANDER, SPECIES_BULBASAUR, SPECIES_SQUIRTLE };
++    static const u16 sRivalTrainer[] = { TRAINER_RIVAL_OAKS_LAB_CHARMANDER, TRAINER_RIVAL_OAKS_LAB_BULBASAUR, TRAINER_RIVAL_OAKS_LAB_SQUIRTLE };
++    u16 num = VarGet(VAR_TEMP_1);
++
++    if (num >= NELEMS(sPlayerBase))
++        return;
++    if (NZ_ON(NZ_BIT_RND_WILD))
++        VarSet(VAR_TEMP_2, Nz_RandomSpecies(sPlayerBase[num], 0x1000 + num));
++    VarSet(VAR_TEMP_3, Nz_TrainerSpecies(sRivalBase[num], sRivalTrainer[num]));
++}
++
++u16 NzIsRandomStarters(void)
++{
++    return NZ_ON(NZ_BIT_RND_WILD) != 0;
++}
++
++// ---------------------------------------------------------------------------
++// Hashing / randomizer
++// ---------------------------------------------------------------------------
++
++static u32 NzHash(u32 a, u32 b)
++{
++    u32 x = a * 0x9E3779B1u + (b ^ (((u32)gSaveBlock1Ptr->nz.seed << 16) | 0x5BD1u)) * 0x85EBCA6Bu + 0x1234567u;
++
++    x ^= x >> 15;
++    x *= 0x2C1B3C6Du;
++    x ^= x >> 12;
++    x *= 0x297A2D39u;
++    x ^= x >> 15;
++    return x;
++}
++
++static bool8 NzIsLegendaryOrPseudo(u16 s)
++{
++    switch (s)
++    {
++    case SPECIES_ARTICUNO: case SPECIES_ZAPDOS: case SPECIES_MOLTRES:
++    case SPECIES_MEWTWO: case SPECIES_MEW:
++    case SPECIES_RAIKOU: case SPECIES_ENTEI: case SPECIES_SUICUNE:
++    case SPECIES_LUGIA: case SPECIES_HO_OH: case SPECIES_CELEBI:
++    case SPECIES_REGIROCK: case SPECIES_REGICE: case SPECIES_REGISTEEL:
++    case SPECIES_LATIAS: case SPECIES_LATIOS:
++    case SPECIES_KYOGRE: case SPECIES_GROUDON: case SPECIES_RAYQUAZA:
++    case SPECIES_JIRACHI: case SPECIES_DEOXYS:
++    case SPECIES_DRATINI: case SPECIES_DRAGONAIR: case SPECIES_DRAGONITE:
++    case SPECIES_LARVITAR: case SPECIES_PUPITAR: case SPECIES_TYRANITAR:
++    case SPECIES_BAGON: case SPECIES_SHELGON: case SPECIES_SALAMENCE:
++    case SPECIES_BELDUM: case SPECIES_METANG: case SPECIES_METAGROSS:
++        return TRUE;
++    }
++    return FALSE;
++}
++
++#define NZ_NUM_SPECIES_GEN12 SPECIES_CELEBI
++#define NZ_NUM_SPECIES_GEN3  (SPECIES_EGG - SPECIES_TREECKO)
++
++static u16 NzPickSpecies(u32 h)
++{
++    u32 idx = h % (NZ_NUM_SPECIES_GEN12 + NZ_NUM_SPECIES_GEN3);
++
++    if (idx < NZ_NUM_SPECIES_GEN12)
++        return idx + 1;
++    return SPECIES_TREECKO + (idx - NZ_NUM_SPECIES_GEN12);
++}
++
++u16 Nz_RandomSpecies(u16 species, u32 salt)
++{
++    u32 h = NzHash(species, salt);
++    u8 i;
++
++    for (i = 0; i < 24; i++)
++    {
++        u16 pick = NzPickSpecies(h);
++
++        if (!(NZ_ON(NZ_BIT_BAN_LEGEND) && NzIsLegendaryOrPseudo(pick)))
++            return pick;
++        h = NzHash(h, i + 1);
++    }
++    return species;
++}
++
++u16 Nz_WildSpecies(u16 species)
++{
++    if (!NZ_ON(NZ_BIT_RND_WILD) || species == SPECIES_NONE)
++        return species;
++    return Nz_RandomSpecies(species, 0x100 + GetCurrentRegionMapSectionId());
++}
++
++u16 Nz_TrainerSpecies(u16 species, u16 trainerNum)
++{
++    if (!NZ_ON(NZ_BIT_RND_TRAINER) || species == SPECIES_NONE)
++        return species;
++    return Nz_RandomSpecies(species, 0x10000 + trainerNum);
++}
++
++u16 Nz_RandomMove(u16 move, u16 species)
++{
++    u32 h;
++    u8 i;
++
++    if (!NZ_ON(NZ_BIT_RND_MOVES) || move == MOVE_NONE)
++        return move;
++    h = NzHash(move, species + 0x4000);
++    for (i = 0; i < 8; i++)
++    {
++        u16 m = (h % (MOVES_COUNT - 1)) + 1;
++
++        if (m != MOVE_STRUGGLE)
++            return m;
++        h = NzHash(h, i);
++    }
++    return move;
++}
++
++u8 Nz_RandomAbility(u16 species, u8 abilityNum, u8 original)
++{
++    if (!NZ_ON(NZ_BIT_RND_ABILITY) || original == ABILITY_NONE)
++        return original;
++    return (NzHash(species + 0x8000, abilityNum) % (ABILITIES_COUNT - 1)) + 1;
++}
++
++void Nz_SetTrainerMoves(struct Pokemon *mon, const u16 *moves, u16 origSpecies)
++{
++    u8 i;
++
++    // If the species was randomized the default moveset is used instead.
++    if (GetMonData(mon, MON_DATA_SPECIES, NULL) != origSpecies)
++        return;
++    for (i = 0; i < MAX_MON_MOVES; i++)
++    {
++        u16 move = Nz_RandomMove(moves[i], origSpecies);
++        SetMonData(mon, MON_DATA_MOVE1 + i, &move);
++        SetMonData(mon, MON_DATA_PP1 + i, &gBattleMoves[move].pp);
++    }
++}
++
++// Overworld items (called from Std_FindItem). Key items, HMs and anything
++// that is not a regular item are left alone so the story can't be broken.
++static bool8 NzIsRandomizableItem(u16 item)
++{
++    u8 pocket;
++
++    if (item == ITEM_NONE || item >= ITEM_HM01 || item == ITEM_ENIGMA_BERRY)
++        return FALSE;
++    if (ItemId_GetImportance(item) != 0)
++        return FALSE;
++    if (ItemId_GetName(item)[0] == CHAR_QUESTION_MARK)
++        return FALSE;
++    pocket = ItemId_GetPocket(item);
++    return pocket == POCKET_ITEMS || pocket == POCKET_POKE_BALLS || pocket == POCKET_TM_CASE;
++}
++
++void NzRandomizeItem(void)
++{
++    u16 item = gSpecialVar_0x8000;
++    u32 h;
++    u8 i;
++
++    if (!NZ_ON(NZ_BIT_RND_ITEMS) || !NzIsRandomizableItem(item))
++        return;
++    h = NzHash(item, (gSaveBlock1Ptr->location.mapGroup << 16) | (gSaveBlock1Ptr->location.mapNum << 8) | gSpecialVar_LastTalked);
++    for (i = 0; i < 32; i++)
++    {
++        u16 pick = (h % (ITEM_HM01 - 1)) + 1;
++
++        if (NzIsRandomizableItem(pick))
++        {
++            gSpecialVar_0x8000 = pick;
++            return;
++        }
++        h = NzHash(h, i);
++    }
++}
++
++// ---------------------------------------------------------------------------
++// Nuzlocke rules
++// ---------------------------------------------------------------------------
++
++static bool8 NzAreaUsed(u8 area)
++{
++    return (gSaveBlock1Ptr->nz.areaUsed[area >> 3] >> (area & 7)) & 1;
++}
++
++static void NzMarkArea(u8 area)
++{
++    gSaveBlock1Ptr->nz.areaUsed[area >> 3] |= 1 << (area & 7);
++}
++
++void Nz_OnBattleStart(void)
++{
++    sCatchBlocked = FALSE;
++    if (gBattleTypeFlags & BATTLE_TYPE_LINK)
++        return;
++    if (NZ_ON(NZ_BIT_SET_MODE))
++        gSaveBlock2Ptr->optionsBattleStyle = OPTIONS_BATTLE_STYLE_SET;
++    if (NZ_ON(NZ_BIT_CAPTURE)
++     && !(gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_SAFARI | BATTLE_TYPE_OLD_MAN_TUTORIAL | BATTLE_TYPE_POKEDUDE | BATTLE_TYPE_BATTLE_TOWER | BATTLE_TYPE_TRAINER_TOWER)))
++    {
++        u8 area = GetCurrentRegionMapSectionId();
++
++        if (NzAreaUsed(area))
++        {
++            if (!(NZ_ON(NZ_BIT_SHINY) && IsMonShiny(&gEnemyParty[0])))
++                sCatchBlocked = TRUE;
++        }
++        else
++        {
++            NzMarkArea(area);
++        }
++    }
++}
++
++bool8 Nz_IsItemBlockedInBattle(u16 itemId)
++{
++    if (NZ_ON(NZ_BIT_NOHEAL) && ItemId_GetBattleUsage(itemId) == 1)
++        return TRUE;
++    if (sCatchBlocked && ItemId_GetPocket(itemId) == POCKET_POKE_BALLS)
++        return TRUE;
++    return FALSE;
++}
++
++void Nz_OnBattleEnd(void)
++{
++    u8 i;
++    u8 alive = 0;
++
++    if (!NZ_ON(NZ_BIT_DEATH))
++        return;
++    if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_POKEDUDE | BATTLE_TYPE_OLD_MAN_TUTORIAL))
++        return;
++    if (gBattleOutcome == B_OUTCOME_LOST || gBattleOutcome == B_OUTCOME_DREW)
++        return; // whiteout is handled elsewhere
++    for (i = 0; i < PARTY_SIZE; i++)
++    {
++        if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES, NULL) != SPECIES_NONE
++         && !GetMonData(&gPlayerParty[i], MON_DATA_IS_EGG, NULL)
++         && GetMonData(&gPlayerParty[i], MON_DATA_HP, NULL) != 0)
++            alive++;
++    }
++    if (alive == 0)
++        return;
++    for (i = 0; i < PARTY_SIZE; i++)
++    {
++        struct Pokemon *mon = &gPlayerParty[i];
++
++        if (GetMonData(mon, MON_DATA_SPECIES, NULL) != SPECIES_NONE
++         && !GetMonData(mon, MON_DATA_IS_EGG, NULL)
++         && GetMonData(mon, MON_DATA_HP, NULL) == 0)
++        {
++            u16 item = GetMonData(mon, MON_DATA_HELD_ITEM, NULL);
++
++            if (item != ITEM_NONE)
++                AddBagItem(item, 1);
++            if (NZ_ON(NZ_BIT_GRAVEYARD))
++                Nz_SendMonToPC(mon);
++            ZeroMonData(mon);
++        }
++    }
++    CompactPartySlots();
++}
++
++void Nz_OnWhiteOut(void)
++{
++    if (NZ_ON(NZ_BIT_GAMEOVER))
++        sGameOver = TRUE;
++}
++
++bool8 Nz_ShouldGameOver(void)
++{
++    bool8 r = sGameOver;
++
++    sGameOver = FALSE;
++    return r;
++}
++
++static u8 NzGetLevelCap(void)
++{
++    // Ace level of the next gym leader, indexed by the number of badges.
++    static const u8 sCaps[] = { 14, 21, 24, 29, 43, 43, 47, 50, 65 };
++    u8 badges = 0;
++    u8 i;
++
++    for (i = 0; i < NUM_BADGES; i++)
++    {
++        if (FlagGet(FLAG_BADGE01_GET + i))
++            badges++;
++    }
++    if (badges >= NUM_BADGES && FlagGet(FLAG_SYS_GAME_CLEAR))
++        return MAX_LEVEL;
++    return sCaps[badges];
++}
++
++bool8 Nz_IsMonAtLevelCap(struct Pokemon *mon)
++{
++    if (!NZ_ON(NZ_BIT_LEVELCAP))
++        return FALSE;
++    return GetMonData(mon, MON_DATA_LEVEL, NULL) >= NzGetLevelCap();
++}
++
++u32 Nz_ClampExp(struct Pokemon *mon, u32 gain)
++{
++    u16 species;
++    u32 maxExp, cur;
++
++    if (!NZ_ON(NZ_BIT_LEVELCAP))
++        return gain;
++    species = GetMonData(mon, MON_DATA_SPECIES, NULL);
++    maxExp = gExperienceTables[gSpeciesInfo[species].growthRate][NzGetLevelCap()];
++    cur = GetMonData(mon, MON_DATA_EXP, NULL);
++    if (cur >= maxExp)
++        return 0;
++    if (cur + gain > maxExp)
++        return maxExp - cur;
++    return gain;
++}
+diff --git a/src/overworld.c b/src/overworld.c
+index 339014d..a5afe10 100644
+--- a/src/overworld.c
++++ b/src/overworld.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "bg_regs.h"
+ #include "cable_club.h"
+@@ -1551,6 +1552,7 @@ void CB2_WhiteOut(void)
+         FieldClearVBlankHBlankCallbacks();
+         StopMapMusic();
+         ResetSafariZoneFlag_();
++        Nz_OnWhiteOut();
+         DoWhiteOut();
+         SetInitialPlayerAvatarStateWithDirection(DIR_NORTH);
+         ScriptContext_Init();
+diff --git a/src/party_menu.c b/src/party_menu.c
+index 7f3a881..a0e0b1f 100644
+--- a/src/party_menu.c
++++ b/src/party_menu.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "battle.h"
+ #include "battle_anim.h"
+@@ -5021,7 +5022,7 @@ void ItemUseCB_RareCandy(u8 taskId, TaskFunc func)
+     u16 item = gSpecialVar_ItemId;
+     bool8 noEffect;
+ 
+-    if (GetMonData(mon, MON_DATA_LEVEL) != MAX_LEVEL)
++    if (GetMonData(mon, MON_DATA_LEVEL) != MAX_LEVEL && !Nz_IsMonAtLevelCap(mon))
+         noEffect = PokemonItemUseNoEffect(mon, item, gPartyMenu.slotId, 0);
+     else
+         noEffect = TRUE;
+diff --git a/src/player_pc.c b/src/player_pc.c
+index d482820..77fc122 100644
+--- a/src/player_pc.c
++++ b/src/player_pc.c
+@@ -75,6 +75,7 @@ static void Task_PlayerPcGiveMailToMon(u8 taskId);
+ static void Task_WaitFadeAndGoToPartyMenu(u8 taskId);
+ static void Task_Error_NoPokemon(u8 taskId);
+ static void Task_PlayerPcExitMailSubmenu(u8 taskId);
++static void Task_PlayerPcNuzlocke(u8 taskId);
+ 
+ static const u8 *const sItemStorageActionDescriptionPtrs[] = {
+     gText_TakeOutItemsFromThePC,
+@@ -82,13 +83,16 @@ static const u8 *const sItemStorageActionDescriptionPtrs[] = {
+     gText_GoBackToThePreviousMenu
+ };
+ 
++static const u8 sText_NuzlockeOptions[] = _("Reglas Nuzlocke");
++
+ static const struct MenuAction sMenuActions_TopMenu[] = {
+     {gText_ItemStorage, Task_PlayerPcItemStorage},
+     {gText_Mailbox, Task_PlayerPcMailbox},
+-    {gText_TurnOff, Task_PlayerPcTurnOff}
++    {gText_TurnOff, Task_PlayerPcTurnOff},
++    {sText_NuzlockeOptions, Task_PlayerPcNuzlocke}
+ };
+ 
+-static const u8 sItemOrder_BedroomPC[] = { 0, 1, 2 };
++static const u8 sItemOrder_BedroomPC[] = { 0, 1, 3, 2 };
+ static const u8 sItemOrder_PlayerPC[] = { 0, 1, 2 };
+ 
+ static const struct MenuAction sMenuActions_ItemPc[] = {
+@@ -155,7 +159,7 @@ void BedroomPC(void)
+     gPlayerPcMenuManager.notInRoom = FALSE;
+     BackupHelpContext();
+     sItemOrder = sItemOrder_BedroomPC;
+-    sTopMenuItemCount = 3;
++    sTopMenuItemCount = 4;
+     taskId = CreateTask(TaskDummy, 0);
+     DisplayItemMessageOnField(taskId, FONT_NORMAL, gText_WhatWouldYouLikeToDo, Task_DrawPlayerPcTopMenu);
+ }
+@@ -254,6 +258,12 @@ static void Task_PlayerPcMailbox(u8 taskId)
+     }
+ }
+ 
++static void Task_PlayerPcNuzlocke(u8 taskId)
++{
++    ScriptContext_SetupScript(PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu);
++    DestroyTask(taskId);
++}
++
+ static void Task_PlayerPcTurnOff(u8 taskId)
+ {
+     if (gPlayerPcMenuManager.notInRoom == FALSE)
+diff --git a/src/pokemon.c b/src/pokemon.c
+index 66a5c3d..eb2579d 100644
+--- a/src/pokemon.c
++++ b/src/pokemon.c
+@@ -36,6 +36,7 @@
+ #include "constants/hold_effects.h"
+ #include "constants/battle_move_effects.h"
+ #include "constants/union_room.h"
++#include "nuzlocke.h"
+ 
+ #define SPECIES_TO_HOENN(name)      [SPECIES_##name - 1] = HOENN_DEX_##name
+ #define SPECIES_TO_NATIONAL(name)   [SPECIES_##name - 1] = NATIONAL_DEX_##name
+@@ -2278,7 +2279,7 @@ static void GiveBoxMonInitialMoveset(struct BoxPokemon *boxMon)
+         if (moveLevel > (level << 9))
+             break;
+ 
+-        move = (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID);
++        move = (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species));
+ 
+         if (GiveMoveToBoxMon(boxMon, move) == MON_HAS_MAX_MOVES)
+             DeleteFirstMoveAndGiveMoveToBoxMon(boxMon, move);
+@@ -2309,7 +2310,7 @@ u16 MonTryLearningNewMove(struct Pokemon *mon, bool8 firstMove)
+ 
+     if ((gLevelUpLearnsets[species][sLearningMoveTableID] & LEVEL_UP_MOVE_LV) == (level << 9))
+     {
+-        gMoveToLearn = (gLevelUpLearnsets[species][sLearningMoveTableID] & LEVEL_UP_MOVE_ID);
++        gMoveToLearn = (Nz_RandomMove(gLevelUpLearnsets[species][sLearningMoveTableID] & LEVEL_UP_MOVE_ID, species));
+         sLearningMoveTableID++;
+         retVal = GiveMoveToMon(mon, gMoveToLearn);
+     }
+@@ -3795,9 +3796,15 @@ u8 GetAbilityBySpecies(u16 species, bool8 abilityNum)
+     else
+         gLastUsedAbility = gSpeciesInfo[species].abilities[0];
+ 
++    gLastUsedAbility = Nz_RandomAbility(species, abilityNum, gLastUsedAbility);
+     return gLastUsedAbility;
+ }
+ 
++u8 Nz_SendMonToPC(struct Pokemon *mon)
++{
++    return SendMonToPC(mon);
++}
++
+ u8 GetMonAbility(struct Pokemon *mon)
+ {
+     u16 species = GetMonData(mon, MON_DATA_SPECIES, NULL);
+@@ -5760,16 +5767,16 @@ u8 GetMoveRelearnerMoves(struct Pokemon *mon, u16 *moves)
+ 
+         if (moveLevel <= (level << 9))
+         {
+-            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); j++)
++            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); j++)
+                 ;
+ 
+             if (j == MAX_MON_MOVES)
+             {
+-                for (k = 0; k < numMoves && moves[k] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); k++)
++                for (k = 0; k < numMoves && moves[k] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); k++)
+                     ;
+ 
+                 if (k == numMoves)
+-                    moves[numMoves++] = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID;
++                    moves[numMoves++] = Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species);
+             }
+         }
+     }
+@@ -5783,7 +5790,7 @@ u8 GetLevelUpMovesBySpecies(u16 species, u16 *moves)
+     int i;
+ 
+     for (i = 0; i < MAX_LEVEL_UP_MOVES && gLevelUpLearnsets[species][i] != LEVEL_UP_END; i++)
+-         moves[numMoves++] = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID;
++         moves[numMoves++] = Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species);
+ 
+      return numMoves;
+ }
+@@ -5814,16 +5821,16 @@ u8 GetNumberOfRelearnableMoves(struct Pokemon *mon)
+ 
+         if (moveLevel <= (level << 9))
+         {
+-            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); j++)
++            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); j++)
+                 ;
+ 
+             if (j == MAX_MON_MOVES)
+             {
+-                for (k = 0; k < numMoves && moves[k] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); k++)
++                for (k = 0; k < numMoves && moves[k] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); k++)
+                     ;
+ 
+                 if (k == numMoves)
+-                    moves[numMoves++] = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID;
++                    moves[numMoves++] = Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species);
+             }
+         }
+     }
+diff --git a/src/script_menu.c b/src/script_menu.c
+index 41eebd8..1a5a00e 100644
+--- a/src/script_menu.c
++++ b/src/script_menu.c
+@@ -502,6 +502,43 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
+     { gOtherText_Exit }
+ };
+ 
++static const u8 sNzMain_0[] = _("Reglas Nuzlocke 1");
++static const u8 sNzMain_1[] = _("Reglas Nuzlocke 2");
++static const u8 sNzMain_2[] = _("Aleatorizador");
++static const u8 sNzMain_3[] = _("Salir");
++static const u8 sNzR1_0[] = _("Captura por zona");
++static const u8 sNzR1_1[] = _("Muerte permanente");
++static const u8 sNzR1_2[] = _("Motes obligatorios");
++static const u8 sNzR1_3[] = _("Combate fijo");
++static const u8 sNzR1_4[] = _("Game Over total");
++static const u8 sNzBack[] = _("Atrás");
++static const u8 sNzR2_0[] = _("Límite de nivel");
++static const u8 sNzR2_1[] = _("Sin curar en combate");
++static const u8 sNzR2_2[] = _("Shiny libre");
++static const u8 sNzR2_3[] = _("Muertos a la PC");
++static const u8 sNzRn_0[] = _("Salvajes e iniciales");
++static const u8 sNzRn_1[] = _("Entrenadores");
++static const u8 sNzRn_2[] = _("Movimientos");
++static const u8 sNzRn_3[] = _("Habilidades");
++static const u8 sNzRn_4[] = _("Objetos del suelo");
++static const u8 sNzRn_5[] = _("Sin legendarios");
++
++static const struct MenuAction sMultichoiceList_NzMain[] = {
++    { sNzMain_0 }, { sNzMain_1 }, { sNzMain_2 }, { sNzMain_3 }
++};
++
++static const struct MenuAction sMultichoiceList_NzRules1[] = {
++    { sNzR1_0 }, { sNzR1_1 }, { sNzR1_2 }, { sNzR1_3 }, { sNzR1_4 }, { sNzBack }
++};
++
++static const struct MenuAction sMultichoiceList_NzRules2[] = {
++    { sNzR2_0 }, { sNzR2_1 }, { sNzR2_2 }, { sNzR2_3 }, { sNzBack }
++};
++
++static const struct MenuAction sMultichoiceList_NzRandom[] = {
++    { sNzRn_0 }, { sNzRn_1 }, { sNzRn_2 }, { sNzRn_3 }, { sNzRn_4 }, { sNzRn_5 }, { sNzBack }
++};
++
+ static const struct MultichoiceListStruct sMultichoiceLists[] = {
+     [MULTICHOICE_YES_NO]                                     = MULTICHOICE(sMultichoiceList_YesNo),
+     [MULTICHOICE_EEVEELUTIONS]                               = MULTICHOICE(sMultichoiceList_Eeveelutions),
+@@ -568,6 +605,10 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
+     [MULTICHOICE_62]                                         = MULTICHOICE(sMultichoiceList_62),
+     [MULTICHOICE_JOIN_OR_LEAD]                               = MULTICHOICE(sMultichoiceList_JoinOrLead),
+     [MULTICHOICE_TRAINER_TOWER_MODE]                         = MULTICHOICE(sMultichoiceList_TrainerTowerMode),
++    [MULTICHOICE_NZ_MAIN]                                    = MULTICHOICE(sMultichoiceList_NzMain),
++    [MULTICHOICE_NZ_RULES_1]                                 = MULTICHOICE(sMultichoiceList_NzRules1),
++    [MULTICHOICE_NZ_RULES_2]                                 = MULTICHOICE(sMultichoiceList_NzRules2),
++    [MULTICHOICE_NZ_RANDOM]                                  = MULTICHOICE(sMultichoiceList_NzRandom),
+ };
+ 
+ // From Cool to Berries goes unused
+diff --git a/src/script_pokemon_util.c b/src/script_pokemon_util.c
+index bc11dc0..37c93dc 100644
+--- a/src/script_pokemon_util.c
++++ b/src/script_pokemon_util.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "berry.h"
+ #include "daycare.h"
+@@ -130,7 +131,7 @@ void CreateScriptedWildMon(u16 species, u8 level, u16 item)
+     u8 heldItem[2];
+ 
+     ZeroEnemyPartyMons();
+-    CreateMon(&gEnemyParty[0], species, level, 32, 0, 0, OT_ID_PLAYER_ID, 0);
++    CreateMon(&gEnemyParty[0], Nz_WildSpecies(species), level, 32, 0, 0, OT_ID_PLAYER_ID, 0);
+     if (item)
+     {
+         heldItem[0] = item;
+diff --git a/src/wild_encounter.c b/src/wild_encounter.c
+index fa358c0..cb123b9 100644
+--- a/src/wild_encounter.c
++++ b/src/wild_encounter.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "random.h"
+ #include "wild_encounter.h"
+ #include "event_data.h"
+@@ -230,7 +231,7 @@ static void GenerateWildMon(u16 species, u8 level, u8 slot)
+     ZeroEnemyPartyMons();
+     if (species != SPECIES_UNOWN)
+     {
+-        CreateMonWithNature(&gEnemyParty[0], species, level, USE_RANDOM_IVS, Random() % NUM_NATURES);
++        CreateMonWithNature(&gEnemyParty[0], Nz_WildSpecies(species), level, USE_RANDOM_IVS, Random() % NUM_NATURES);
+     }
+     else
+     {
