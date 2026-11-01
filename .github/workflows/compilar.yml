@@ -10,6 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Aplicar parche Nuzlocke Randomizer
+        run: |
+          if [ -f nuzlocke.patch ]; then
+            git apply --whitespace=nowarn nuzlocke.patch
+            echo "Parche aplicado"
+          else
+            echo "No hay nuzlocke.patch: se compila el juego base"
+          fi
+
       - name: Instalar herramientas
         run: |
           sudo apt-get update
@@ -31,3 +40,4 @@ jobs:
           name: rom-hack
           path: "*.gba"
           retention-days: 14
+
