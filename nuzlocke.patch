@@ -128,10 +128,10 @@ index 1384b7d..dd5dabd 100644
 +PalletTown_Text_AbilityManAnother:
 +	.string "¿Quieres probar con otro POKéMON?$"
 diff --git a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
-index edc6ac3..cad6e6f 100644
+index edc6ac3..883247a 100644
 --- a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
 +++ b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
-@@ -43,6 +43,245 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
+@@ -43,6 +43,296 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
  	releaseall
  	end
  
@@ -144,6 +144,7 @@ index edc6ac3..cad6e6f 100644
 +	case 1, Nz_EventScript_MenuRules2
 +	case 2, Nz_EventScript_MenuRandom
 +	case 3, Nz_EventScript_MenuGifts
++	case 4, Nz_EventScript_MenuQol
 +	goto Nz_EventScript_MenuExit
 +	end
 +
@@ -345,6 +346,56 @@ index edc6ac3..cad6e6f 100644
 +	.string "No hay espacio en la PC para\n"
 +	.string "recibir el regalo.$"
 +
++Nz_EventScript_MenuQol::
++	message Nz_Text_WhatSettings
++	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_QOL, FALSE
++	switch VAR_RESULT
++	case 0, Nz_EventScript_Q_0
++	case 1, Nz_EventScript_Q_1
++	case 2, Nz_EventScript_Q_2
++	case 3, Nz_EventScript_Q_3
++	case 4, Nz_EventScript_Q_4
++	case 5, Nz_EventScript_Q_5
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_Q_0::
++	setvar VAR_0x8004, 21
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
++Nz_EventScript_Q_1::
++	setvar VAR_0x8004, 16
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
++Nz_EventScript_Q_2::
++	setvar VAR_0x8004, 17
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
++Nz_EventScript_Q_3::
++	setvar VAR_0x8004, 18
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
++Nz_EventScript_Q_4::
++	setvar VAR_0x8004, 19
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
++Nz_EventScript_Q_5::
++	setvar VAR_0x8004, 20
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
 +Nz_EventScript_ToggleCall::
 +	special NzBufferOptionPrompt
 +	msgbox gStringVar4, MSGBOX_YESNO
@@ -454,11 +505,113 @@ index c904278..2c51af9 100644
  	call EventScript_TryPickUpHiddenItem
  	goto_if_eq VAR_0x8007, TRUE, EventScript_PickedUpHiddenItem
  	goto_if_eq VAR_0x8007, FALSE, EventScript_NoRoomForHiddenItem
+diff --git a/data/scripts/pkmn_center_nurse.inc b/data/scripts/pkmn_center_nurse.inc
+index 507c8a4..c0b4c65 100644
+--- a/data/scripts/pkmn_center_nurse.inc
++++ b/data/scripts/pkmn_center_nurse.inc
+@@ -1,5 +1,7 @@
+ EventScript_PkmnCenterNurse::
+ 	goto_if_questlog EventScript_ReleaseEnd
++	specialvar VAR_RESULT, NzReminderOn
++	goto_if_eq VAR_RESULT, TRUE, Nz_EventScript_NurseMenu
+ 	message Text_WelcomeWantToHealPkmn
+ 	waitmessage
+ 	multichoice 19, 8, MULTICHOICE_YES_NO, FALSE | (TRUE << 1)
+@@ -64,3 +66,56 @@ Movement_Bow::
+ 	nurse_joy_bow
+ 	delay_4
+ 	step_end
++
++Nz_EventScript_NurseMenu::
++	message Nz_Text_NurseWelcome
++	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_NURSE, FALSE
++	switch VAR_RESULT
++	case 0, EventScript_PkmnCenterNurse_HealPkmn
++	case 1, Nz_EventScript_NurseReminder
++	goto EventScript_PkmnCenterNurse_Goodbye
++	end
++
++Nz_EventScript_NurseReminder::
++	msgbox Nz_Text_NurseWhichMon, MSGBOX_DEFAULT
++	special ChooseMonForMoveRelearner
++	waitstate
++	goto_if_ge VAR_0x8004, PARTY_SIZE, Nz_EventScript_NurseMenu
++	special IsSelectedMonEgg
++	goto_if_eq VAR_RESULT, TRUE, Nz_EventScript_NurseEgg
++	goto_if_eq VAR_0x8005, 0, Nz_EventScript_NurseNoMoves
++	msgbox Nz_Text_NurseTeachWhich, MSGBOX_DEFAULT
++	special TeachMoveRelearnerMove
++	waitstate
++	goto Nz_EventScript_NurseMenu
++	end
++
++Nz_EventScript_NurseEgg::
++	msgbox Nz_Text_NurseEgg, MSGBOX_DEFAULT
++	goto Nz_EventScript_NurseMenu
++	end
++
++Nz_EventScript_NurseNoMoves::
++	msgbox Nz_Text_NurseNoMoves, MSGBOX_DEFAULT
++	goto Nz_EventScript_NurseMenu
++	end
++
++Nz_Text_NurseWelcome:
++	.string "¡Bienvenido al CENTRO POKéMON!\n"
++	.string "¿Qué quieres hacer?$"
++
++Nz_Text_NurseWhichMon:
++	.string "¿De qué POKéMON quieres\n"
++	.string "recordar movimientos?$"
++
++Nz_Text_NurseTeachWhich:
++	.string "¿Qué movimiento quieres\n"
++	.string "recordar?$"
++
++Nz_Text_NurseEgg:
++	.string "No puedo enseñar nada a un HUEVO.$"
++
++Nz_Text_NurseNoMoves:
++	.string "No hay movimientos que\n"
++	.string "pueda recordar.$"
+diff --git a/data/scripts/repel.inc b/data/scripts/repel.inc
+index 97bf963..96824ed 100644
+--- a/data/scripts/repel.inc
++++ b/data/scripts/repel.inc
+@@ -1,6 +1,28 @@
+ EventScript_RepelWoreOff::
++	specialvar VAR_RESULT, NzRepelHasNext
++	goto_if_eq VAR_RESULT, TRUE, Nz_EventScript_RepelAsk
+ 	msgbox Text_RepelWoreOff, MSGBOX_SIGN
+ 	end
+ 
++Nz_EventScript_RepelAsk::
++	lockall
++	msgbox Nz_Text_RepelAsk, MSGBOX_YESNO
++	goto_if_eq VAR_RESULT, YES, Nz_EventScript_RepelUse
++	releaseall
++	end
++
++Nz_EventScript_RepelUse::
++	special NzUseRepel
++	msgbox Nz_Text_RepelUsed, MSGBOX_DEFAULT
++	releaseall
++	end
++
++Nz_Text_RepelAsk:
++	.string "El efecto del REPEL se acabó.\n"
++	.string "¿Usar otro {STR_VAR_1}?$"
++
++Nz_Text_RepelUsed:
++	.string "¡Has usado otro {STR_VAR_1}!$"
++
+ Text_RepelWoreOff::
+ 	.string "REPEL's effect wore off…$"
 diff --git a/data/specials.inc b/data/specials.inc
-index d880bf6..7842251 100644
+index d880bf6..6977a2a 100644
 --- a/data/specials.inc
 +++ b/data/specials.inc
-@@ -452,4 +452,15 @@ gSpecials::
+@@ -452,4 +452,18 @@ gSpecials::
  	def_special UpdateLoreleiDollCollection
  	def_special LoopWingFlapSound
  	def_special CreateEnemyEventMon
@@ -473,12 +626,15 @@ index d880bf6..7842251 100644
 +	def_special NzIsNickForced
 +	def_special NzPrepareAbilityMenu
 +	def_special NzSetAbility
++	def_special NzRepelHasNext
++	def_special NzUseRepel
++	def_special NzReminderOn
  gSpecialsEnd::
 diff --git a/include/constants/menu.h b/include/constants/menu.h
-index 7c36f36..5d8f1d8 100644
+index 7c36f36..b61d400 100644
 --- a/include/constants/menu.h
 +++ b/include/constants/menu.h
-@@ -69,6 +69,11 @@
+@@ -69,6 +69,13 @@
  #define MULTICHOICE_62                                         62
  #define MULTICHOICE_JOIN_OR_LEAD                               63
  #define MULTICHOICE_TRAINER_TOWER_MODE                         64
@@ -487,6 +643,8 @@ index 7c36f36..5d8f1d8 100644
 +#define MULTICHOICE_NZ_RULES_2                                 67
 +#define MULTICHOICE_NZ_RANDOM                                  68
 +#define MULTICHOICE_NZ_ABILITY                                 69
++#define MULTICHOICE_NZ_QOL                                     70
++#define MULTICHOICE_NZ_NURSE                                   71
  
  #define MULTICHOICE_NONE                                      255
  
@@ -504,10 +662,10 @@ index 4a386d5..42cb361 100644
  // field_screen_effect
  extern const u8 EventScript_AfterWhiteOutMomHeal[];
 diff --git a/include/global.h b/include/global.h
-index 77155b0..5f139d1 100644
+index 77155b0..22c12e1 100644
 --- a/include/global.h
 +++ b/include/global.h
-@@ -756,6 +756,15 @@ struct ExternalEventFlags
+@@ -756,6 +756,18 @@ struct ExternalEventFlags
  
  } __attribute__((packed));/*size = 0x15*/
  
@@ -517,13 +675,16 @@ index 77155b0..5f139d1 100644
 +    u16 seed;           // randomizer seed (0 = not generated yet)
 +    u8 areaUsed[32];    // one bit per region map section already used for a capture
 +    u8 giftsClaimed;    // badge gifts already claimed from the bedroom PC
-+    u8 reserved[363];
++    u8 battleSpeed;     // 0 = x1, 1 = x2, 2 = x4
++    u16 options2;       // quality of life toggles, see nuzlocke.h
++    u16 lastRepel;      // last REPEL item used (for the auto-reuse prompt)
++    u8 reserved[358];
 +}; // size: 400 (0x190)
 +
  struct SaveBlock1
  {
      /*0x0000*/ struct Coords16 pos;
-@@ -806,7 +815,7 @@ struct SaveBlock1
+@@ -806,7 +818,7 @@ struct SaveBlock1
      /*0x30D0*/ struct Roamer roamer;
      /*0x30EC*/ struct EnigmaBerry enigmaBerry;
      /*0x3120*/ struct MysteryGiftSave mysteryGift;
@@ -534,10 +695,10 @@ index 77155b0..5f139d1 100644
      /*0x3A18*/ u8 seen2[DEX_FLAGS_NO];
 diff --git a/include/nuzlocke.h b/include/nuzlocke.h
 new file mode 100644
-index 0000000..1f4f042
+index 0000000..119b7e6
 --- /dev/null
 +++ b/include/nuzlocke.h
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,78 @@
 +#ifndef GUARD_NUZLOCKE_H
 +#define GUARD_NUZLOCKE_H
 +
@@ -563,6 +724,19 @@ index 0000000..1f4f042
 +    NZ_BIT_BAN_LEGEND,  // randomizer never generates legendaries / pseudo-legendaries
 +    NZ_OPT_COUNT
 +};
++
++// Quality of life toggles (gSaveBlock1Ptr->nz.options2)
++enum
++{
++    NZ2_BIT_SHOES,      // running shoes from the start + run indoors
++    NZ2_BIT_TM_REUSE,   // reusable TMs
++    NZ2_BIT_REPEL,      // ask to reuse REPEL when it wears off
++    NZ2_BIT_EXPALL,     // whole party gains EXP
++    NZ2_BIT_REMINDER,   // move reminder: pre-evolution moves + Pokemon Centers
++    NZ2_OPT_COUNT
++};
++
++#define NZ2_ON(bit) ((gSaveBlock1Ptr->nz.options2 & (1 << (bit))) != 0)
 +
 +#define NZ_ON(bit) ((gSaveBlock1Ptr->nz.options & (1 << (bit))) != 0)
 +
@@ -594,6 +768,13 @@ index 0000000..1f4f042
 +u16 NzPrepareAbilityMenu(void);
 +void NzSetAbility(void);
 +extern u8 gNzAbilityText[2][24];
++
++u16 NzRepelHasNext(void);
++void NzUseRepel(void);
++u16 NzReminderOn(void);
++u16 Nz_GetPreEvolution(u16 species);
++u8 Nz_StatNatureMod(u8 nature, u8 statIndex);
++void Nz_InitNewGameDefaults(void);
 +
 +#endif // GUARD_NUZLOCKE_H
 diff --git a/ld_script.ld b/ld_script.ld
@@ -720,7 +901,7 @@ index 64c9e59..871b835 100644
      {
          RandomlyGivePartyPokerus(gPlayerParty);
 diff --git a/src/battle_script_commands.c b/src/battle_script_commands.c
-index 67f90a3..c8b0133 100644
+index 67f90a3..bc9818b 100644
 --- a/src/battle_script_commands.c
 +++ b/src/battle_script_commands.c
 @@ -1,4 +1,5 @@
@@ -729,7 +910,44 @@ index 67f90a3..c8b0133 100644
  #include "gflib.h"
  #include "item.h"
  #include "util.h"
-@@ -3244,6 +3245,8 @@ static void Cmd_getexp(void)
+@@ -3165,7 +3166,17 @@ static void Cmd_getexp(void)
+ 
+             calculatedExp = gSpeciesInfo[gBattleMons[gBattlerFainted].species].expYield * gBattleMons[gBattlerFainted].level / 7;
+ 
+-            if (viaExpShare) // at least one mon is getting exp via exp share
++            if (NZ2_ON(NZ2_BIT_EXPALL))
++            {
++                // modern EXP. All: fighters get full EXP, the rest of the party half
++                *exp = SAFE_DIV(calculatedExp, viaSentIn);
++                if (*exp == 0)
++                    *exp = 1;
++                gExpShareExp = calculatedExp / 2;
++                if (gExpShareExp == 0)
++                    gExpShareExp = 1;
++            }
++            else if (viaExpShare) // at least one mon is getting exp via exp share
+             {
+                 *exp = SAFE_DIV(calculatedExp / 2, viaSentIn);
+                 if (*exp == 0)
+@@ -3198,7 +3209,7 @@ static void Cmd_getexp(void)
+             else
+                 holdEffect = ItemId_GetHoldEffect(item);
+ 
+-            if (holdEffect != HOLD_EFFECT_EXP_SHARE && !(gBattleStruct->sentInPokes & 1))
++            if (holdEffect != HOLD_EFFECT_EXP_SHARE && !NZ2_ON(NZ2_BIT_EXPALL) && !(gBattleStruct->sentInPokes & 1))
+             {
+                 *(&gBattleStruct->sentInPokes) >>= 1;
+                 gBattleScripting.getexpState = 5;
+@@ -3227,7 +3238,7 @@ static void Cmd_getexp(void)
+                     else
+                         gBattleMoveDamage = 0;
+ 
+-                    if (holdEffect == HOLD_EFFECT_EXP_SHARE)
++                    if (NZ2_ON(NZ2_BIT_EXPALL) ? !(gBattleStruct->sentInPokes & 1) : holdEffect == HOLD_EFFECT_EXP_SHARE)
+                         gBattleMoveDamage += gExpShareExp;
+                     if (holdEffect == HOLD_EFFECT_LUCKY_EGG)
+                         gBattleMoveDamage = (gBattleMoveDamage * 150) / 100;
+@@ -3244,6 +3255,8 @@ static void Cmd_getexp(void)
                          i = STRINGID_EMPTYSTRING4;
                      }
  
@@ -738,7 +956,7 @@ index 67f90a3..c8b0133 100644
                      // get exp getter battlerId
                      if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
                      {
-@@ -9791,6 +9794,13 @@ static void Cmd_trygivecaughtmonnick(void)
+@@ -9791,6 +9804,13 @@ static void Cmd_trygivecaughtmonnick(void)
      switch (gBattleCommunication[MULTIUSE_STATE])
      {
      case 0:
@@ -752,6 +970,25 @@ index 67f90a3..c8b0133 100644
          HandleBattleWindow(23, 8, 29, 13, 0);
          BattlePutTextOnWindow(gText_BattleYesNoChoice, B_WIN_YESNO);
          gBattleCommunication[MULTIUSE_STATE]++;
+diff --git a/src/bike.c b/src/bike.c
+index be9cd8e..f26acc2 100644
+--- a/src/bike.c
++++ b/src/bike.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "bike.h"
+ #include "field_player_avatar.h"
+ #include "metatile_behavior.h"
+@@ -252,7 +253,7 @@ bool8 RS_IsRunningDisallowed(u8 r0)
+ 
+ bool32 IsRunningDisallowed(u8 metatileBehavior)
+ {
+-    if (!gMapHeader.allowRunning)
++    if (!gMapHeader.allowRunning && !NZ2_ON(NZ2_BIT_SHOES))
+         return TRUE;
+     if (MetatileBehaviorForbidsBiking(metatileBehavior) != TRUE)
+         return FALSE;
 diff --git a/src/data/text/abilities.h b/src/data/text/abilities.h
 index c2002be..0bf4f72 100644
 --- a/src/data/text/abilities.h
@@ -1075,6 +1312,25 @@ index c2002be..0bf4f72 100644
 +    [ABILITY_CACOPHONY] = _("Cacofonía"),
 +    [ABILITY_AIR_LOCK] = _("Bucle Aire"),
  };
+diff --git a/src/field_player_avatar.c b/src/field_player_avatar.c
+index ef086dd..388bf3b 100644
+--- a/src/field_player_avatar.c
++++ b/src/field_player_avatar.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "bike.h"
+ #include "event_data.h"
+@@ -513,7 +514,7 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
+         return;
+     }
+ 
+-    if ((heldKeys & B_BUTTON) && FlagGet(FLAG_SYS_B_DASH)
++    if ((heldKeys & B_BUTTON) && (FlagGet(FLAG_SYS_B_DASH) || NZ2_ON(NZ2_BIT_SHOES))
+         && !IsRunningDisallowed(gObjectEvents[gPlayerAvatar.objectEventId].currentMetatileBehavior))
+     {
+         if (PlayerIsMovingOnRockStairs(direction))
 diff --git a/src/field_screen_effect.c b/src/field_screen_effect.c
 index af00120..238cd53 100644
 --- a/src/field_screen_effect.c
@@ -1146,12 +1402,82 @@ index 8f52ead..9e1b8cb 100644
          {
              sContextMenuItemsPtr = sContextMenuItems_BattleUse;
              sContextMenuNumItems = 2;
+diff --git a/src/item_use.c b/src/item_use.c
+index 954f482..00690b3 100644
+--- a/src/item_use.c
++++ b/src/item_use.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "battle.h"
+ #include "berry_pouch.h"
+@@ -565,6 +566,7 @@ static void Task_UseRepel(u8 taskId)
+     {
+         ItemUse_SetQuestLogEvent(QL_EVENT_USED_ITEM, NULL, gSpecialVar_ItemId, 0xFFFF);
+         VarSet(VAR_REPEL_STEP_COUNT, ItemId_GetHoldEffectParam(gSpecialVar_ItemId));
++        gSaveBlock1Ptr->nz.lastRepel = gSpecialVar_ItemId;
+         RemoveUsedItem();
+         DisplayItemMessageInBag(taskId, FONT_NORMAL, gStringVar4, Task_ReturnToBagFromContextMenu);
+     }
+diff --git a/src/main.c b/src/main.c
+index 542b0f5..eb26c82 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -1,4 +1,6 @@
+ #include "global.h"
++#include "nuzlocke.h"
++#include "battle_main.h"
+ #include "gflib.h"
+ #include "link.h"
+ #include "link_rfu.h"
+@@ -246,7 +248,22 @@ static void CallCallbacks(void)
+             gMain.callback1();
+ 
+         if (gMain.callback2)
++        {
+             gMain.callback2();
++            // Battle speed-up: run the battle graphics/text callback extra times
++            if (gMain.callback2 == BattleMainCB2 && gSaveBlock1Ptr != NULL && gSaveBlock1Ptr->nz.battleSpeed != 0)
++            {
++                u8 extra = gSaveBlock1Ptr->nz.battleSpeed == 1 ? 1 : 3;
++                u8 i;
++
++                for (i = 0; i < extra && gMain.callback2 == BattleMainCB2; i++)
++                {
++                    gMain.newKeys = 0;
++                    gMain.newAndRepeatedKeys = 0;
++                    gMain.callback2();
++                }
++            }
++        }
+     }
+ }
+ 
+diff --git a/src/new_game.c b/src/new_game.c
+index 3768b3c..7f6eab8 100644
+--- a/src/new_game.c
++++ b/src/new_game.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "random.h"
+ #include "overworld.h"
+@@ -149,6 +150,7 @@ void NewGameInitData(void)
+     RunScriptImmediately(EventScript_ResetAllMapFlags);
+     StringCopy(gSaveBlock1Ptr->rivalName, rivalName);
+     ResetTrainerTowerResults();
++    Nz_InitNewGameDefaults();
+ }
+ 
+ static void ResetMiniGamesResults(void)
 diff --git a/src/nuzlocke.c b/src/nuzlocke.c
 new file mode 100644
-index 0000000..9e77cf8
+index 0000000..3347aa5
 --- /dev/null
 +++ b/src/nuzlocke.c
-@@ -0,0 +1,524 @@
+@@ -0,0 +1,639 @@
 +#include "global.h"
 +#include "gflib.h"
 +#include "string_util.h"
@@ -1174,6 +1500,7 @@ index 0000000..9e77cf8
 +#include "constants/region_map_sections.h"
 +#include "constants/opponents.h"
 +#include "constants/vars.h"
++#include "constants/songs.h"
 +#include "script_pokemon_util.h"
 +
 +u8 Nz_SendMonToPC(struct Pokemon *mon); // pokemon.c
@@ -1233,39 +1560,97 @@ index 0000000..9e77cf8
 +// Menu helpers (called from scripts)
 +// ---------------------------------------------------------------------------
 +
++static const u8 sQName_0[] = _("Correr siempre");
++static const u8 sQName_1[] = _("MT reutilizables");
++static const u8 sQName_2[] = _("Repel moderno");
++static const u8 sQName_3[] = _("Exp. a todos");
++static const u8 sQName_4[] = _("Recordar mejorado");
++static const u8 sQName_5[] = _("Velocidad combate");
++
++static const u8 sQDesc_0[] = _("Zapatillas desde el inicio y\ncorrer también en interiores.");
++static const u8 sQDesc_1[] = _("Las MT no se gastan al\nenseñar su movimiento.");
++static const u8 sQDesc_2[] = _("Al acabarse un REPEL, pregunta\nsi quieres usar otro.");
++static const u8 sQDesc_3[] = _("Todo el equipo gana EXP; los\nque no luchan, la mitad.");
++static const u8 sQDesc_4[] = _("Recuerda movimientos de preevo-\nluciones y en Centros POKéMON.");
++static const u8 sQDesc_5[] = _("Acelera animaciones y texto\nen combate (x1, x2 o x4).");
++
++static const u8 sText_Speed0[] = _("x1 (normal)");
++static const u8 sText_Speed1[] = _("x2");
++static const u8 sText_Speed2[] = _("x4");
++
++#define NZ_IDX_QOL_FIRST 16
++#define NZ_IDX_SPEED     21
++
++static const u8 *const sQolNames[] = { sQName_0, sQName_1, sQName_2, sQName_3, sQName_4, sQName_5 };
++static const u8 *const sQolDescs[] = { sQDesc_0, sQDesc_1, sQDesc_2, sQDesc_3, sQDesc_4, sQDesc_5 };
++
++static u8 NzValidIdx(u8 idx)
++{
++    if (idx < NZ_OPT_COUNT || (idx >= NZ_IDX_QOL_FIRST && idx <= NZ_IDX_SPEED))
++        return idx;
++    return 0;
++}
++
++static const u8 *NzGetName(u8 idx)
++{
++    return idx < NZ_OPT_COUNT ? sOptionNames[idx] : sQolNames[idx - NZ_IDX_QOL_FIRST];
++}
++
++static const u8 *NzGetDesc(u8 idx)
++{
++    return idx < NZ_OPT_COUNT ? sOptionDescs[idx] : sQolDescs[idx - NZ_IDX_QOL_FIRST];
++}
++
++static const u8 *NzGetState(u8 idx)
++{
++    static const u8 *const sSpeedTexts[] = { sText_Speed0, sText_Speed1, sText_Speed2 };
++    bool8 on;
++
++    if (idx == NZ_IDX_SPEED)
++        return sSpeedTexts[gSaveBlock1Ptr->nz.battleSpeed % 3];
++    if (idx < NZ_OPT_COUNT)
++        on = NZ_ON(idx);
++    else
++        on = (gSaveBlock1Ptr->nz.options2 >> (idx - NZ_IDX_QOL_FIRST)) & 1;
++    return on ? sText_On : sText_Off;
++}
++
 +void NzBufferOptionPrompt(void)
 +{
-+    u8 idx = gSpecialVar_0x8004;
++    u8 idx = NzValidIdx(gSpecialVar_0x8004);
 +
-+    if (idx >= NZ_OPT_COUNT)
-+        idx = 0;
-+    StringCopy(gStringVar4, sOptionDescs[idx]);
++    StringCopy(gStringVar4, NzGetDesc(idx));
 +    StringAppend(gStringVar4, sText_PageBreak);
-+    StringAppend(gStringVar4, sOptionNames[idx]);
++    StringAppend(gStringVar4, NzGetName(idx));
 +    StringAppend(gStringVar4, sText_Colon);
-+    StringAppend(gStringVar4, NZ_ON(idx) ? sText_On : sText_Off);
++    StringAppend(gStringVar4, NzGetState(idx));
 +    StringAppend(gStringVar4, sText_Ask);
 +}
 +
 +void NzBufferNameState(void)
 +{
-+    u8 idx = gSpecialVar_0x8004;
++    u8 idx = NzValidIdx(gSpecialVar_0x8004);
 +
-+    if (idx >= NZ_OPT_COUNT)
-+        idx = 0;
-+    StringCopy(gStringVar1, sOptionNames[idx]);
-+    StringCopy(gStringVar2, NZ_ON(idx) ? sText_On : sText_Off);
++    StringCopy(gStringVar1, NzGetName(idx));
++    StringCopy(gStringVar2, NzGetState(idx));
 +}
 +
 +void NzToggleOption(void)
 +{
 +    u8 idx = gSpecialVar_0x8004;
 +
-+    if (idx >= NZ_OPT_COUNT)
++    if (idx != NzValidIdx(idx))
 +        return;
-+    gSaveBlock1Ptr->nz.options ^= (1 << idx);
-+    if (gSaveBlock1Ptr->nz.seed == 0 && idx >= NZ_BIT_RND_WILD)
-+        gSaveBlock1Ptr->nz.seed = (Random() % 0xFFFE) + 1;
++    if (idx == NZ_IDX_SPEED)
++        gSaveBlock1Ptr->nz.battleSpeed = (gSaveBlock1Ptr->nz.battleSpeed + 1) % 3;
++    else if (idx >= NZ_IDX_QOL_FIRST)
++        gSaveBlock1Ptr->nz.options2 ^= (1 << (idx - NZ_IDX_QOL_FIRST));
++    else
++    {
++        gSaveBlock1Ptr->nz.options ^= (1 << idx);
++        if (gSaveBlock1Ptr->nz.seed == 0 && idx >= NZ_BIT_RND_WILD)
++            gSaveBlock1Ptr->nz.seed = (Random() % 0xFFFE) + 1;
++    }
 +    NzBufferNameState();
 +}
 +
@@ -1676,6 +2061,62 @@ index 0000000..9e77cf8
 +    SetMonData(mon, MON_DATA_ABILITY_NUM, &slot);
 +    StringCopy(gStringVar2, gAbilityNames[GetAbilityBySpecies(species, slot)]);
 +}
++
++// ---------------------------------------------------------------------------
++// Quality of life
++// ---------------------------------------------------------------------------
++
++void Nz_InitNewGameDefaults(void)
++{
++    gSaveBlock1Ptr->nz.options2 = (1 << NZ2_OPT_COUNT) - 1;
++    gSaveBlock1Ptr->nz.battleSpeed = 0;
++}
++
++u16 NzReminderOn(void)
++{
++    return NZ2_ON(NZ2_BIT_REMINDER) != 0;
++}
++
++// Pallet-style "use another REPEL" prompt. Fills STR_VAR_1 with the item name.
++u16 NzRepelHasNext(void)
++{
++    u16 item = gSaveBlock1Ptr->nz.lastRepel;
++
++    if (!NZ2_ON(NZ2_BIT_REPEL) || item == ITEM_NONE || !CheckBagHasItem(item, 1))
++        return FALSE;
++    CopyItemName(item, gStringVar1);
++    return TRUE;
++}
++
++void NzUseRepel(void)
++{
++    u16 item = gSaveBlock1Ptr->nz.lastRepel;
++
++    if (item == ITEM_NONE || !CheckBagHasItem(item, 1))
++        return;
++    RemoveBagItem(item, 1);
++    VarSet(VAR_REPEL_STEP_COUNT, ItemId_GetHoldEffectParam(item));
++    PlaySE(SE_REPEL);
++}
++
++extern const struct Evolution gEvolutionTable[NUM_SPECIES][EVOS_PER_MON];
++
++// Species that evolves into the given one (SPECIES_NONE if it has none).
++u16 Nz_GetPreEvolution(u16 species)
++{
++    u16 s;
++    u8 e;
++
++    for (s = 1; s < NUM_SPECIES; s++)
++    {
++        for (e = 0; e < EVOS_PER_MON; e++)
++        {
++            if (gEvolutionTable[s][e].method != 0 && gEvolutionTable[s][e].targetSpecies == species)
++                return s;
++        }
++    }
++    return SPECIES_NONE;
++}
 diff --git a/src/overworld.c b/src/overworld.c
 index 339014d..a5afe10 100644
 --- a/src/overworld.c
@@ -1695,7 +2136,7 @@ index 339014d..a5afe10 100644
          SetInitialPlayerAvatarStateWithDirection(DIR_NORTH);
          ScriptContext_Init();
 diff --git a/src/party_menu.c b/src/party_menu.c
-index 7f3a881..a0e0b1f 100644
+index 7f3a881..8c38baf 100644
 --- a/src/party_menu.c
 +++ b/src/party_menu.c
 @@ -1,4 +1,5 @@
@@ -1704,6 +2145,24 @@ index 7f3a881..a0e0b1f 100644
  #include "gflib.h"
  #include "battle.h"
  #include "battle_anim.h"
+@@ -4285,7 +4286,7 @@ static void CB2_UseItem(void)
+     {
+         GiveMoveToMon(&gPlayerParty[gPartyMenu.slotId], ItemIdToBattleMoveId(gSpecialVar_ItemId));
+         AdjustFriendship(&gPlayerParty[gPartyMenu.slotId], FRIENDSHIP_EVENT_LEARN_TMHM);
+-        if (gSpecialVar_ItemId < ITEM_HM01)
++        if (gSpecialVar_ItemId < ITEM_HM01 && !NZ2_ON(NZ2_BIT_TM_REUSE))
+             RemoveBagItem(gSpecialVar_ItemId, 1);
+         SetMainCallback2(gPartyMenu.exitCallback);
+     }
+@@ -4305,7 +4306,7 @@ static void CB2_UseTMHMAfterForgettingMove(void)
+         SetMonMoveSlot(mon, ItemIdToBattleMoveId(gSpecialVar_ItemId), moveIdx);
+         AdjustFriendship(mon, FRIENDSHIP_EVENT_LEARN_TMHM);
+         ItemUse_SetQuestLogEvent(QL_EVENT_USED_ITEM, mon, gSpecialVar_ItemId, move);
+-        if (gSpecialVar_ItemId < ITEM_HM01)
++        if (gSpecialVar_ItemId < ITEM_HM01 && !NZ2_ON(NZ2_BIT_TM_REUSE))
+             RemoveBagItem(gSpecialVar_ItemId, 1);
+         SetMainCallback2(gPartyMenu.exitCallback);
+     }
 @@ -5021,7 +5022,7 @@ void ItemUseCB_RareCandy(u8 taskId, TaskFunc func)
      u16 item = gSpecialVar_ItemId;
      bool8 noEffect;
@@ -1767,7 +2226,7 @@ index d482820..77fc122 100644
  {
      if (gPlayerPcMenuManager.notInRoom == FALSE)
 diff --git a/src/pokemon.c b/src/pokemon.c
-index 66a5c3d..eb2579d 100644
+index 66a5c3d..38eb11e 100644
 --- a/src/pokemon.c
 +++ b/src/pokemon.c
 @@ -36,6 +36,7 @@
@@ -1812,27 +2271,100 @@ index 66a5c3d..eb2579d 100644
  u8 GetMonAbility(struct Pokemon *mon)
  {
      u16 species = GetMonData(mon, MON_DATA_SPECIES, NULL);
-@@ -5760,16 +5767,16 @@ u8 GetMoveRelearnerMoves(struct Pokemon *mon, u16 *moves)
+@@ -5437,6 +5444,18 @@ static u16 ModifyStatByNature(u8 nature, u16 stat, u8 statIndex)
+     return retVal;
+ }
  
-         if (moveLevel <= (level << 9))
++// 0 = neutral, 1 = stat raised by the nature, 2 = stat lowered by the nature
++u8 Nz_StatNatureMod(u8 nature, u8 statIndex)
++{
++    u16 v = ModifyStatByNature(nature, 100, statIndex);
++
++    if (v > 100)
++        return 1;
++    if (v < 100)
++        return 2;
++    return 0;
++}
++
+ void AdjustFriendship(struct Pokemon *mon, u8 event)
+ {
+     u16 species = GetMonData(mon, MON_DATA_SPECIES_OR_EGG, NULL);
+@@ -5738,97 +5757,72 @@ u32 CanMonLearnTMHM(struct Pokemon *mon, u8 tm)
+     }
+ }
+ 
+-u8 GetMoveRelearnerMoves(struct Pokemon *mon, u16 *moves)
++// Collects the moves a Pokemon could relearn. With the improved reminder on,
++// the level-up moves of its pre-evolutions are included as well.
++static u8 NzCollectRelearnMoves(struct Pokemon *mon, u16 *moves, u8 maxMoves)
+ {
+     u16 learnedMoves[MAX_MON_MOVES];
+     u8 numMoves = 0;
+     u16 species = GetMonData(mon, MON_DATA_SPECIES, NULL);
+     u8 level = GetMonData(mon, MON_DATA_LEVEL, NULL);
++    u8 chain;
+     int i, j, k;
+ 
+     for (i = 0; i < MAX_MON_MOVES; i++)
+         learnedMoves[i] = GetMonData(mon, MON_DATA_MOVE1 + i, NULL);
+ 
+-    for (i = 0; i < MAX_LEVEL_UP_MOVES; i++)
++    for (chain = 0; chain < 4 && species != SPECIES_NONE; chain++)
+     {
+-        u16 moveLevel;
+-
+-        if (gLevelUpLearnsets[species][i] == LEVEL_UP_END)
+-            break;
+-
+-        moveLevel = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_LV;
+-
+-        if (moveLevel <= (level << 9))
++        for (i = 0; i < MAX_LEVEL_UP_MOVES; i++)
          {
 -            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); j++)
-+            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); j++)
-                 ;
+-                ;
++            u16 entry = gLevelUpLearnsets[species][i];
++            u16 move;
  
-             if (j == MAX_MON_MOVES)
-             {
+-            if (j == MAX_MON_MOVES)
+-            {
 -                for (k = 0; k < numMoves && moves[k] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); k++)
-+                for (k = 0; k < numMoves && moves[k] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); k++)
-                     ;
+-                    ;
++            if (entry == LEVEL_UP_END)
++                break;
++            if ((entry & LEVEL_UP_MOVE_LV) > (level << 9))
++                continue;
  
-                 if (k == numMoves)
+-                if (k == numMoves)
 -                    moves[numMoves++] = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID;
-+                    moves[numMoves++] = Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species);
-             }
+-            }
++            move = Nz_RandomMove(entry & LEVEL_UP_MOVE_ID, species);
++            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != move; j++)
++                ;
++            if (j != MAX_MON_MOVES)
++                continue;
++            for (k = 0; k < numMoves && moves[k] != move; k++)
++                ;
++            if (k == numMoves && numMoves < maxMoves)
++                moves[numMoves++] = move;
          }
++        if (!NZ2_ON(NZ2_BIT_REMINDER))
++            break;
++        species = Nz_GetPreEvolution(species);
      }
-@@ -5783,7 +5790,7 @@ u8 GetLevelUpMovesBySpecies(u16 species, u16 *moves)
+-
+     return numMoves;
+ }
+ 
++u8 GetMoveRelearnerMoves(struct Pokemon *mon, u16 *moves)
++{
++    return NzCollectRelearnMoves(mon, moves, MAX_LEVEL_UP_MOVES);
++}
++
+ u8 GetLevelUpMovesBySpecies(u16 species, u16 *moves)
+ {
+     u8 numMoves = 0;
      int i;
  
      for (i = 0; i < MAX_LEVEL_UP_MOVES && gLevelUpLearnsets[species][i] != LEVEL_UP_END; i++)
@@ -1841,28 +2373,97 @@ index 66a5c3d..eb2579d 100644
  
       return numMoves;
  }
-@@ -5814,16 +5821,16 @@ u8 GetNumberOfRelearnableMoves(struct Pokemon *mon)
  
-         if (moveLevel <= (level << 9))
-         {
+ u8 GetNumberOfRelearnableMoves(struct Pokemon *mon)
+ {
+-    u16 learnedMoves[MAX_MON_MOVES];
+     u16 moves[MAX_LEVEL_UP_MOVES];
+-    u8 numMoves = 0;
+-    u16 species = GetMonData(mon, MON_DATA_SPECIES_OR_EGG, NULL);
+-    u8 level = GetMonData(mon, MON_DATA_LEVEL, NULL);
+-    int i, j, k;
+ 
+-    if (species == SPECIES_EGG)
++    if (GetMonData(mon, MON_DATA_SPECIES_OR_EGG, NULL) == SPECIES_EGG)
+         return 0;
+-
+-    for (i = 0; i < MAX_MON_MOVES; i++)
+-        learnedMoves[i] = GetMonData(mon, MON_DATA_MOVE1 + i, NULL);
+-
+-    for (i = 0; i < MAX_LEVEL_UP_MOVES; i++)
+-    {
+-        u16 moveLevel;
+-
+-        if (gLevelUpLearnsets[species][i] == LEVEL_UP_END)
+-            break;
+-
+-        moveLevel = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_LV;
+-
+-        if (moveLevel <= (level << 9))
+-        {
 -            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); j++)
-+            for (j = 0; j < MAX_MON_MOVES && learnedMoves[j] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); j++)
-                 ;
- 
-             if (j == MAX_MON_MOVES)
-             {
+-                ;
+-
+-            if (j == MAX_MON_MOVES)
+-            {
 -                for (k = 0; k < numMoves && moves[k] != (gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID); k++)
-+                for (k = 0; k < numMoves && moves[k] != (Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species)); k++)
-                     ;
- 
-                 if (k == numMoves)
+-                    ;
+-
+-                if (k == numMoves)
 -                    moves[numMoves++] = gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID;
-+                    moves[numMoves++] = Nz_RandomMove(gLevelUpLearnsets[species][i] & LEVEL_UP_MOVE_ID, species);
-             }
-         }
+-            }
+-        }
+-    }
+-
+-    return numMoves;
++    return NzCollectRelearnMoves(mon, moves, MAX_LEVEL_UP_MOVES);
+ }
+ 
+ u16 SpeciesToPokedexNum(u16 species)
+diff --git a/src/pokemon_summary_screen.c b/src/pokemon_summary_screen.c
+index b3e3c77..db3a33f 100644
+--- a/src/pokemon_summary_screen.c
++++ b/src/pokemon_summary_screen.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "pokemon.h"
+ #include "pokemon_summary_screen.h"
+@@ -2496,14 +2497,26 @@ static void PrintInfoPage(void)
      }
+ }
+ 
++static const u8 *PokeSum_GetStatColors(u8 statIndex)
++{
++    // Nature indicator: raised stat in red, lowered stat in blue
++    u8 mod = Nz_StatNatureMod(GetNature(&sMonSummaryScreen->currentMon), statIndex);
++
++    if (mod == 1)
++        return sLevelNickTextColors[2];
++    if (mod == 2)
++        return sLevelNickTextColors[3];
++    return sLevelNickTextColors[0];
++}
++
+ static void PrintSkillsPage(void)
+ {
+     AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 14 + sMonSkillsPrinterXpos->curHpStr, 4, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.curHpStrBuf);
+-    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->atkStr, 22, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_ATK]);
+-    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->defStr, 35, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_DEF]);
+-    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->spAStr, 48, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_SPA]);
+-    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->spDStr, 61, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_SPD]);
+-    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->speStr, 74, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_SPE]);
++    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->atkStr, 22, PokeSum_GetStatColors(STAT_ATK), TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_ATK]);
++    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->defStr, 35, PokeSum_GetStatColors(STAT_DEF), TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_DEF]);
++    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->spAStr, 48, PokeSum_GetStatColors(STAT_SPATK), TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_SPA]);
++    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->spDStr, 61, PokeSum_GetStatColors(STAT_SPDEF), TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_SPD]);
++    AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 50 + sMonSkillsPrinterXpos->speStr, 74, PokeSum_GetStatColors(STAT_SPEED), TEXT_SKIP_DRAW, sMonSummaryScreen->summary.statValueStrBufs[PSS_STAT_SPE]);
+     AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 15 + sMonSkillsPrinterXpos->expStr, 87, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.expPointsStrBuf);
+     AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 15 + sMonSkillsPrinterXpos->toNextLevel, 100, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.expToNextLevelStrBuf);
+ }
 diff --git a/src/script_menu.c b/src/script_menu.c
-index 41eebd8..91ddf36 100644
+index 41eebd8..a7ec066 100644
 --- a/src/script_menu.c
 +++ b/src/script_menu.c
 @@ -1,4 +1,5 @@
@@ -1871,7 +2472,7 @@ index 41eebd8..91ddf36 100644
  #include "gflib.h"
  #include "menu.h"
  #include "task.h"
-@@ -502,6 +503,50 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
+@@ -502,6 +503,69 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
      { gOtherText_Exit }
  };
  
@@ -1879,7 +2480,8 @@ index 41eebd8..91ddf36 100644
 +static const u8 sNzMain_1[] = _("Reglas Nuzlocke 2");
 +static const u8 sNzMain_2[] = _("Aleatorizador");
 +static const u8 sNzMain_3[] = _("Regalos por medalla");
-+static const u8 sNzMain_4[] = _("Salir");
++static const u8 sNzMain_4[] = _("Mejoras");
++static const u8 sNzMain_5[] = _("Salir");
 +static const u8 sNzR1_0[] = _("Captura por zona");
 +static const u8 sNzR1_1[] = _("Muerte permanente");
 +static const u8 sNzR1_2[] = _("Motes obligatorios");
@@ -1903,8 +2505,26 @@ index 41eebd8..91ddf36 100644
 +    { gNzAbilityText[0] }, { gNzAbilityText[1] }, { sNzAbilityCancel }
 +};
 +
++static const u8 sNzQ_0[] = _("Velocidad combate");
++static const u8 sNzQ_1[] = _("Correr siempre");
++static const u8 sNzQ_2[] = _("MT reutilizables");
++static const u8 sNzQ_3[] = _("Repel moderno");
++static const u8 sNzQ_4[] = _("Exp. a todos");
++static const u8 sNzQ_5[] = _("Recordar mejorado");
++static const u8 sNzNurse_0[] = _("Curar POKéMON");
++static const u8 sNzNurse_1[] = _("Recordar movimientos");
++static const u8 sNzNurse_2[] = _("Salir");
++
++static const struct MenuAction sMultichoiceList_NzQol[] = {
++    { sNzQ_0 }, { sNzQ_1 }, { sNzQ_2 }, { sNzQ_3 }, { sNzQ_4 }, { sNzQ_5 }, { sNzBack }
++};
++
++static const struct MenuAction sMultichoiceList_NzNurse[] = {
++    { sNzNurse_0 }, { sNzNurse_1 }, { sNzNurse_2 }
++};
++
 +static const struct MenuAction sMultichoiceList_NzMain[] = {
-+    { sNzMain_0 }, { sNzMain_1 }, { sNzMain_2 }, { sNzMain_3 }, { sNzMain_4 }
++    { sNzMain_0 }, { sNzMain_1 }, { sNzMain_2 }, { sNzMain_3 }, { sNzMain_4 }, { sNzMain_5 }
 +};
 +
 +static const struct MenuAction sMultichoiceList_NzRules1[] = {
@@ -1922,12 +2542,14 @@ index 41eebd8..91ddf36 100644
  static const struct MultichoiceListStruct sMultichoiceLists[] = {
      [MULTICHOICE_YES_NO]                                     = MULTICHOICE(sMultichoiceList_YesNo),
      [MULTICHOICE_EEVEELUTIONS]                               = MULTICHOICE(sMultichoiceList_Eeveelutions),
-@@ -568,6 +613,11 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
+@@ -568,6 +632,13 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
      [MULTICHOICE_62]                                         = MULTICHOICE(sMultichoiceList_62),
      [MULTICHOICE_JOIN_OR_LEAD]                               = MULTICHOICE(sMultichoiceList_JoinOrLead),
      [MULTICHOICE_TRAINER_TOWER_MODE]                         = MULTICHOICE(sMultichoiceList_TrainerTowerMode),
 +    [MULTICHOICE_NZ_MAIN]                                    = MULTICHOICE(sMultichoiceList_NzMain),
 +    [MULTICHOICE_NZ_ABILITY]                                 = MULTICHOICE(sMultichoiceList_NzAbility),
++    [MULTICHOICE_NZ_QOL]                                     = MULTICHOICE(sMultichoiceList_NzQol),
++    [MULTICHOICE_NZ_NURSE]                                   = MULTICHOICE(sMultichoiceList_NzNurse),
 +    [MULTICHOICE_NZ_RULES_1]                                 = MULTICHOICE(sMultichoiceList_NzRules1),
 +    [MULTICHOICE_NZ_RULES_2]                                 = MULTICHOICE(sMultichoiceList_NzRules2),
 +    [MULTICHOICE_NZ_RANDOM]                                  = MULTICHOICE(sMultichoiceList_NzRandom),
@@ -1972,4 +2594,3 @@ index fa358c0..cb123b9 100644
      }
      else
      {
-     
