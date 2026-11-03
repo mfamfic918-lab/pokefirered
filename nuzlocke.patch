@@ -1,3 +1,127 @@
+diff --git a/data/maps/CeruleanCity/scripts.inc b/data/maps/CeruleanCity/scripts.inc
+index 0621f6e..69a5ff1 100644
+--- a/data/maps/CeruleanCity/scripts.inc
++++ b/data/maps/CeruleanCity/scripts.inc
+@@ -247,11 +247,28 @@ CeruleanCity_EventScript_LittleBoySlowbroMoved::
+ 	end
+ 
+ CeruleanCity_EventScript_BaldingMan::
+-	msgbox CeruleanCity_Text_PokemonEncyclopediaAmusing, MSGBOX_NPC
++	lock
++	faceplayer
++	setvar VAR_0x8004, 1
++	specialvar VAR_RESULT, NzEventStatus
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_EvAlready
++	goto_if_eq VAR_RESULT, 2, Nz_EventScript_EvNeedBadges
++	goto Nz_EventScript_EvOffer1
++	end
++
++Nz_EventScript_EvOffer1::
++	msgbox Nz_Text_Ev1, MSGBOX_DEFAULT
++	goto Nz_EventScript_GiveEventMon
+ 	end
+ 
+ CeruleanCity_EventScript_Youngster::
+-	msgbox CeruleanCity_Text_TrainerLifeIsToughIsntIt, MSGBOX_NPC
++	lock
++	faceplayer
++	setvar VAR_0x8004, 3
++	specialvar VAR_RESULT, NzEventStatus
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_EvAlready
++	goto_if_eq VAR_RESULT, 2, Nz_EventScript_EvNeedBadges
++	goto Nz_EventScript_Ev3Run
+ 	end
+ 
+ CeruleanCity_EventScript_CeruleanCaveGuard::
+diff --git a/data/maps/CeruleanCity_Mart/scripts.inc b/data/maps/CeruleanCity_Mart/scripts.inc
+index 3a8088a..db70bb1 100644
+--- a/data/maps/CeruleanCity_Mart/scripts.inc
++++ b/data/maps/CeruleanCity_Mart/scripts.inc
+@@ -15,6 +15,8 @@ CeruleanCity_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart CeruleanCity_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/CinnabarIsland_Mart/scripts.inc b/data/maps/CinnabarIsland_Mart/scripts.inc
+index 6169782..d50f7ae 100644
+--- a/data/maps/CinnabarIsland_Mart/scripts.inc
++++ b/data/maps/CinnabarIsland_Mart/scripts.inc
+@@ -15,6 +15,8 @@ CinnabarIsland_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart CinnabarIsland_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/FourIsland_Mart/scripts.inc b/data/maps/FourIsland_Mart/scripts.inc
+index 27908c2..4c3c8fa 100644
+--- a/data/maps/FourIsland_Mart/scripts.inc
++++ b/data/maps/FourIsland_Mart/scripts.inc
+@@ -7,6 +7,8 @@ FourIsland_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart FourIsland_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/FuchsiaCity/scripts.inc b/data/maps/FuchsiaCity/scripts.inc
+index f50aa66..b06b7c9 100644
+--- a/data/maps/FuchsiaCity/scripts.inc
++++ b/data/maps/FuchsiaCity/scripts.inc
+@@ -21,7 +21,18 @@ FuchsiaCity_EventScript_LittleBoy::
+ 	end
+ 
+ FuchsiaCity_EventScript_OldMan::
+-	msgbox FuchsiaCity_Text_SafariZoneZooInFront, MSGBOX_NPC
++	lock
++	faceplayer
++	setvar VAR_0x8004, 2
++	specialvar VAR_RESULT, NzEventStatus
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_EvAlready
++	goto_if_eq VAR_RESULT, 2, Nz_EventScript_EvNeedBadges
++	goto Nz_EventScript_EvOffer2
++	end
++
++Nz_EventScript_EvOffer2::
++	msgbox Nz_Text_Ev2, MSGBOX_DEFAULT
++	goto Nz_EventScript_GiveEventMon
+ 	end
+ 
+ FuchsiaCity_EventScript_Erik::
+diff --git a/data/maps/FuchsiaCity_Mart/scripts.inc b/data/maps/FuchsiaCity_Mart/scripts.inc
+index 2ce4db8..6c66649 100644
+--- a/data/maps/FuchsiaCity_Mart/scripts.inc
++++ b/data/maps/FuchsiaCity_Mart/scripts.inc
+@@ -15,6 +15,8 @@ FuchsiaCity_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart FuchsiaCity_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/LavenderTown_Mart/scripts.inc b/data/maps/LavenderTown_Mart/scripts.inc
+index 6425e59..a0bd91e 100644
+--- a/data/maps/LavenderTown_Mart/scripts.inc
++++ b/data/maps/LavenderTown_Mart/scripts.inc
+@@ -19,6 +19,8 @@ LavenderTown_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart LavenderTown_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
 diff --git a/data/maps/PalletTown/map.json b/data/maps/PalletTown/map.json
 index 802d32d..c33dd8b 100644
 --- a/data/maps/PalletTown/map.json
@@ -128,10 +252,10 @@ index 1384b7d..dd5dabd 100644
 +PalletTown_Text_AbilityManAnother:
 +	.string "¿Quieres probar con otro POKéMON?$"
 diff --git a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
-index edc6ac3..883247a 100644
+index edc6ac3..4eb5220 100644
 --- a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
 +++ b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
-@@ -43,6 +43,296 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
+@@ -43,6 +43,303 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
  	releaseall
  	end
  
@@ -357,6 +481,7 @@ index edc6ac3..883247a 100644
 +	case 3, Nz_EventScript_Q_3
 +	case 4, Nz_EventScript_Q_4
 +	case 5, Nz_EventScript_Q_5
++	case 6, Nz_EventScript_Q_6
 +	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
 +	end
 +
@@ -392,6 +517,12 @@ index edc6ac3..883247a 100644
 +
 +Nz_EventScript_Q_5::
 +	setvar VAR_0x8004, 20
++	call Nz_EventScript_ToggleCall
++	goto Nz_EventScript_MenuQol
++	end
++
++Nz_EventScript_Q_6::
++	setvar VAR_0x8004, 22
 +	call Nz_EventScript_ToggleCall
 +	goto Nz_EventScript_MenuQol
 +	end
@@ -483,6 +614,121 @@ index 90adf86..0418f4f 100644
  	goto_if_ge VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3, PalletTown_ProfessorOaksLab_EventScript_LastPokeBall
  	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2, PalletTown_ProfessorOaksLab_EventScript_ConfirmStarterChoice
  	msgbox PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls
+diff --git a/data/maps/PewterCity/scripts.inc b/data/maps/PewterCity/scripts.inc
+index 5b0f1b6..5287cad 100644
+--- a/data/maps/PewterCity/scripts.inc
++++ b/data/maps/PewterCity/scripts.inc
+@@ -425,7 +425,18 @@ PewterCity_Movement_GuideWalkToGymRight::
+ 	step_end
+ 
+ PewterCity_EventScript_Lass::
+-	msgbox PewterCity_Text_ClefairyCameFromMoon, MSGBOX_NPC
++	lock
++	faceplayer
++	setvar VAR_0x8004, 0
++	specialvar VAR_RESULT, NzEventStatus
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_EvAlready
++	goto_if_eq VAR_RESULT, 2, Nz_EventScript_EvNeedBadges
++	goto Nz_EventScript_EvOffer0
++	end
++
++Nz_EventScript_EvOffer0::
++	msgbox Nz_Text_Ev0, MSGBOX_DEFAULT
++	goto Nz_EventScript_GiveEventMon
+ 	end
+ 
+ PewterCity_EventScript_MuseumGuide::
+diff --git a/data/maps/PewterCity_Mart/scripts.inc b/data/maps/PewterCity_Mart/scripts.inc
+index 0274016..85071ef 100644
+--- a/data/maps/PewterCity_Mart/scripts.inc
++++ b/data/maps/PewterCity_Mart/scripts.inc
+@@ -15,6 +15,8 @@ PewterCity_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart PewterCity_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/SaffronCity_Mart/scripts.inc b/data/maps/SaffronCity_Mart/scripts.inc
+index 6b18a5f..6050c74 100644
+--- a/data/maps/SaffronCity_Mart/scripts.inc
++++ b/data/maps/SaffronCity_Mart/scripts.inc
+@@ -15,6 +15,8 @@ SaffronCity_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart SaffronCity_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/SevenIsland_Mart/scripts.inc b/data/maps/SevenIsland_Mart/scripts.inc
+index 4bd5a1e..8183e91 100644
+--- a/data/maps/SevenIsland_Mart/scripts.inc
++++ b/data/maps/SevenIsland_Mart/scripts.inc
+@@ -7,6 +7,8 @@ SevenIsland_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart SevenIsland_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/SixIsland_Mart/scripts.inc b/data/maps/SixIsland_Mart/scripts.inc
+index 0654092..0163894 100644
+--- a/data/maps/SixIsland_Mart/scripts.inc
++++ b/data/maps/SixIsland_Mart/scripts.inc
+@@ -7,6 +7,8 @@ SixIsland_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart SixIsland_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/ThreeIsland_Mart/scripts.inc b/data/maps/ThreeIsland_Mart/scripts.inc
+index 9b09a1e..63e1855 100644
+--- a/data/maps/ThreeIsland_Mart/scripts.inc
++++ b/data/maps/ThreeIsland_Mart/scripts.inc
+@@ -7,6 +7,8 @@ ThreeIsland_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart ThreeIsland_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/VermilionCity_Mart/scripts.inc b/data/maps/VermilionCity_Mart/scripts.inc
+index dc3b1bf..518ee2c 100644
+--- a/data/maps/VermilionCity_Mart/scripts.inc
++++ b/data/maps/VermilionCity_Mart/scripts.inc
+@@ -15,6 +15,8 @@ VermilionCity_Mart_EventScript_Clerk::
+ 	faceplayer
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart VermilionCity_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
+diff --git a/data/maps/ViridianCity_Mart/scripts.inc b/data/maps/ViridianCity_Mart/scripts.inc
+index 1210dd8..7ac2749 100644
+--- a/data/maps/ViridianCity_Mart/scripts.inc
++++ b/data/maps/ViridianCity_Mart/scripts.inc
+@@ -56,6 +56,8 @@ ViridianCity_Mart_EventScript_Clerk::
+ 	goto_if_questlog EventScript_ReleaseEnd
+ 	message Text_MayIHelpYou
+ 	waitmessage
++	multichoice 0, 0, MULTICHOICE_NZ_MART, FALSE
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_SpecialMart
+ 	pokemart ViridianCity_Mart_Items
+ 	msgbox Text_PleaseComeAgain
+ 	release
 diff --git a/data/scripts/obtain_item.inc b/data/scripts/obtain_item.inc
 index c904278..2c51af9 100644
 --- a/data/scripts/obtain_item.inc
@@ -506,7 +752,7 @@ index c904278..2c51af9 100644
  	goto_if_eq VAR_0x8007, TRUE, EventScript_PickedUpHiddenItem
  	goto_if_eq VAR_0x8007, FALSE, EventScript_NoRoomForHiddenItem
 diff --git a/data/scripts/pkmn_center_nurse.inc b/data/scripts/pkmn_center_nurse.inc
-index 507c8a4..c0b4c65 100644
+index 507c8a4..fd5c2d2 100644
 --- a/data/scripts/pkmn_center_nurse.inc
 +++ b/data/scripts/pkmn_center_nurse.inc
 @@ -1,5 +1,7 @@
@@ -517,7 +763,7 @@ index 507c8a4..c0b4c65 100644
  	message Text_WelcomeWantToHealPkmn
  	waitmessage
  	multichoice 19, 8, MULTICHOICE_YES_NO, FALSE | (TRUE << 1)
-@@ -64,3 +66,56 @@ Movement_Bow::
+@@ -64,3 +66,174 @@ Movement_Bow::
  	nurse_joy_bow
  	delay_4
  	step_end
@@ -574,6 +820,124 @@ index 507c8a4..c0b4c65 100644
 +Nz_Text_NurseNoMoves:
 +	.string "No hay movimientos que\n"
 +	.string "pueda recordar.$"
++
++Nz_EventScript_SpecialMart::
++	pokemart Nz_SpecialMart_Items
++	msgbox Text_PleaseComeAgain
++	release
++	end
++
++	.align 2
++Nz_SpecialMart_Items::
++	.2byte ITEM_RARE_CANDY
++	.2byte ITEM_PP_UP
++	.2byte ITEM_HP_UP
++	.2byte ITEM_PROTEIN
++	.2byte ITEM_IRON
++	.2byte ITEM_CALCIUM
++	.2byte ITEM_ZINC
++	.2byte ITEM_CARBOS
++	.2byte ITEM_REVIVE
++	.2byte ITEM_MAX_REPEL
++	.2byte ITEM_NONE
++	release
++	end
++
++Nz_EventScript_GiveEventMon::
++	specialvar VAR_RESULT, NzEventGiveMon
++	goto_if_eq VAR_RESULT, 3, Nz_EventScript_EventNoRoom
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_EventPC
++	playfanfare MUS_LEVEL_UP
++	bufferspeciesname STR_VAR_1, VAR_TEMP_5
++	message Nz_Text_GiftReceived
++	waitmessage
++	waitfanfare
++	call EventScript_GetGiftMonPartySlot
++	specialvar VAR_RESULT, NzIsNickForced
++	goto_if_eq VAR_RESULT, TRUE, Nz_EventScript_EventNick
++	msgbox Text_GiveNicknameToThisMon, MSGBOX_YESNO
++	goto_if_eq VAR_RESULT, NO, Nz_EventScript_EventEnd
++	goto Nz_EventScript_EventNick
++	end
++
++Nz_EventScript_EventNick::
++	call EventScript_ChangePokemonNickname
++	goto Nz_EventScript_EventEnd
++	end
++
++Nz_EventScript_EventPC::
++	playfanfare MUS_LEVEL_UP
++	bufferspeciesname STR_VAR_1, VAR_TEMP_5
++	message Nz_Text_GiftReceivedPC
++	waitmessage
++	waitfanfare
++	goto Nz_EventScript_EventEnd
++	end
++
++Nz_EventScript_EventNoRoom::
++	msgbox Nz_Text_EventNoRoom, MSGBOX_DEFAULT
++	goto Nz_EventScript_EventEnd
++	end
++
++Nz_EventScript_EventEnd::
++	release
++	end
++
++Nz_Text_EventNoRoom:
++	.string "No tienes espacio. Vuelve cuando\n"
++	.string "puedas llevarte algo más.$"
++
++Nz_Text_EventNeedBadges:
++	.string "Aún no estás listo.\n"
++	.string "Vuelve con más MEDALLAS.$"
++
++Nz_Text_EventAlready:
++	.string "¡Cuídalo mucho! Ahora le toca\n"
++	.string "a otro entrenador.$"
++
++Nz_Text_Ev0:
++	.string "¿Eres entrenador? Tengo un\n"
++	.string "POKéMON que no puedo cuidar.\n"
++	.string "¿Quieres quedártelo?$"
++
++Nz_Text_Ev1:
++	.string "Vi cómo luchas. Se nota que\n"
++	.string "tienes talento. Toma este\n"
++	.string "POKéMON, es raro de ver.$"
++
++Nz_Text_Ev2:
++	.string "Antes viajaba por el mundo.\n"
++	.string "Quiero que este POKéMON viaje\n"
++	.string "contigo, ahora que eres fuerte.$"
++
++Nz_Text_Ev3:
++	.string "Entrenar es duro, ¿verdad?\n"
++	.string "Toma, esto te ayudará.$"
++
++Nz_Text_Ev3Candy:
++	.string "¡Recibiste CARAMELOS RAROS y\n"
++	.string "SUBE PP! Guárdalos bien.$"
++
++Nz_EventScript_Ev3Run::
++	msgbox Nz_Text_Ev3, MSGBOX_DEFAULT
++	giveitem ITEM_RARE_CANDY, 3
++	goto_if_eq VAR_0x8007, FALSE, Nz_EventScript_EventNoRoom
++	giveitem ITEM_PP_UP, 2
++	goto_if_eq VAR_0x8007, FALSE, Nz_EventScript_EventNoRoom
++	setvar VAR_0x8004, 3
++	special NzEventMark
++	release
++	end
++
++Nz_EventScript_EvAlready::
++	msgbox Nz_Text_EventAlready, MSGBOX_DEFAULT
++	release
++	end
++
++Nz_EventScript_EvNeedBadges::
++	msgbox Nz_Text_EventNeedBadges, MSGBOX_DEFAULT
++	release
++	end
 diff --git a/data/scripts/repel.inc b/data/scripts/repel.inc
 index 97bf963..96824ed 100644
 --- a/data/scripts/repel.inc
@@ -608,10 +972,10 @@ index 97bf963..96824ed 100644
  Text_RepelWoreOff::
  	.string "REPEL's effect wore off…$"
 diff --git a/data/specials.inc b/data/specials.inc
-index d880bf6..6977a2a 100644
+index d880bf6..9916d88 100644
 --- a/data/specials.inc
 +++ b/data/specials.inc
-@@ -452,4 +452,18 @@ gSpecials::
+@@ -452,4 +452,21 @@ gSpecials::
  	def_special UpdateLoreleiDollCollection
  	def_special LoopWingFlapSound
  	def_special CreateEnemyEventMon
@@ -629,12 +993,15 @@ index d880bf6..6977a2a 100644
 +	def_special NzRepelHasNext
 +	def_special NzUseRepel
 +	def_special NzReminderOn
++	def_special NzEventStatus
++	def_special NzEventGiveMon
++	def_special NzEventMark
  gSpecialsEnd::
 diff --git a/include/constants/menu.h b/include/constants/menu.h
-index 7c36f36..b61d400 100644
+index 7c36f36..6d676da 100644
 --- a/include/constants/menu.h
 +++ b/include/constants/menu.h
-@@ -69,6 +69,13 @@
+@@ -69,6 +69,14 @@
  #define MULTICHOICE_62                                         62
  #define MULTICHOICE_JOIN_OR_LEAD                               63
  #define MULTICHOICE_TRAINER_TOWER_MODE                         64
@@ -645,6 +1012,7 @@ index 7c36f36..b61d400 100644
 +#define MULTICHOICE_NZ_ABILITY                                 69
 +#define MULTICHOICE_NZ_QOL                                     70
 +#define MULTICHOICE_NZ_NURSE                                   71
++#define MULTICHOICE_NZ_MART                                    72
  
  #define MULTICHOICE_NONE                                      255
  
@@ -662,10 +1030,10 @@ index 4a386d5..42cb361 100644
  // field_screen_effect
  extern const u8 EventScript_AfterWhiteOutMomHeal[];
 diff --git a/include/global.h b/include/global.h
-index 77155b0..22c12e1 100644
+index 77155b0..f6973bc 100644
 --- a/include/global.h
 +++ b/include/global.h
-@@ -756,6 +756,18 @@ struct ExternalEventFlags
+@@ -756,6 +756,20 @@ struct ExternalEventFlags
  
  } __attribute__((packed));/*size = 0x15*/
  
@@ -678,13 +1046,15 @@ index 77155b0..22c12e1 100644
 +    u8 battleSpeed;     // 0 = x1, 1 = x2, 2 = x4
 +    u16 options2;       // quality of life toggles, see nuzlocke.h
 +    u16 lastRepel;      // last REPEL item used (for the auto-reuse prompt)
-+    u8 reserved[358];
++    u8 difficulty;      // 0 Ruby/Sapphire, 1 Sword, 2 Black 2, 3 Kaizo
++    u8 eventsClaimed;   // special NPC events already claimed (bitmask)
++    u8 reserved[356];
 +}; // size: 400 (0x190)
 +
  struct SaveBlock1
  {
      /*0x0000*/ struct Coords16 pos;
-@@ -806,7 +818,7 @@ struct SaveBlock1
+@@ -806,7 +820,7 @@ struct SaveBlock1
      /*0x30D0*/ struct Roamer roamer;
      /*0x30EC*/ struct EnigmaBerry enigmaBerry;
      /*0x3120*/ struct MysteryGiftSave mysteryGift;
@@ -695,10 +1065,10 @@ index 77155b0..22c12e1 100644
      /*0x3A18*/ u8 seen2[DEX_FLAGS_NO];
 diff --git a/include/nuzlocke.h b/include/nuzlocke.h
 new file mode 100644
-index 0000000..119b7e6
+index 0000000..7cde3f8
 --- /dev/null
 +++ b/include/nuzlocke.h
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,85 @@
 +#ifndef GUARD_NUZLOCKE_H
 +#define GUARD_NUZLOCKE_H
 +
@@ -775,6 +1145,13 @@ index 0000000..119b7e6
 +u16 Nz_GetPreEvolution(u16 species);
 +u8 Nz_StatNatureMod(u8 nature, u8 statIndex);
 +void Nz_InitNewGameDefaults(void);
++u8 Nz_TrainerLevel(u8 level);
++u8 Nz_TrainerIV(u8 iv);
++u32 Nz_AiFlags(u32 flags);
++bool8 Nz_ItemsBlocked(void);
++u16 NzEventStatus(void);
++u16 NzEventGiveMon(void);
++void NzEventMark(void);
 +
 +#endif // GUARD_NUZLOCKE_H
 diff --git a/ld_script.ld b/ld_script.ld
@@ -797,8 +1174,49 @@ index 9a4b450..664dd30 100644
          src/intro.o(.rodata);
          src/battle_anim_special.o(.rodata);
          src/hall_of_fame.o(.rodata);
+diff --git a/src/battle_ai_script_commands.c b/src/battle_ai_script_commands.c
+index 74a3077..b0ea9f3 100644
+--- a/src/battle_ai_script_commands.c
++++ b/src/battle_ai_script_commands.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "battle.h"
+ #include "battle_anim.h"
+ #include "util.h"
+@@ -361,7 +362,7 @@ void BattleAI_SetupAIData(void)
+         AI_THINKING_STRUCT->aiFlags = (AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY);
+         return;
+     }
+-    AI_THINKING_STRUCT->aiFlags = gTrainers[gTrainerBattleOpponent_A].aiFlags;
++    AI_THINKING_STRUCT->aiFlags = Nz_AiFlags(gTrainers[gTrainerBattleOpponent_A].aiFlags);
+ }
+ 
+ u8 BattleAI_ChooseMoveOrAction(void)
+diff --git a/src/battle_controller_player.c b/src/battle_controller_player.c
+index d8e1fe7..1fead95 100644
+--- a/src/battle_controller_player.c
++++ b/src/battle_controller_player.c
+@@ -1,4 +1,5 @@
+ #include "global.h"
++#include "nuzlocke.h"
+ #include "gflib.h"
+ #include "data.h"
+ #include "item.h"
+@@ -232,6 +233,11 @@ static void HandleInputChooseAction(void)
+             BtlController_EmitTwoReturnValues(1, B_ACTION_USE_MOVE, 0);
+             break;
+         case 1:
++            if (Nz_ItemsBlocked())
++            {
++                PlaySE(SE_FAILURE);
++                return;
++            }
+             BtlController_EmitTwoReturnValues(1, B_ACTION_USE_ITEM, 0);
+             break;
+         case 2:
 diff --git a/src/battle_main.c b/src/battle_main.c
-index 64c9e59..871b835 100644
+index 64c9e59..8fa69da 100644
 --- a/src/battle_main.c
 +++ b/src/battle_main.c
 @@ -1,4 +1,5 @@
@@ -825,9 +1243,10 @@ index 64c9e59..871b835 100644
 +                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
  
                  personalityValue += nameHash << 8;
-                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
 -                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
-+                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                fixedIV = Nz_TrainerIV(partyData[i].iv * MAX_PER_STAT_IVS / 255);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), Nz_TrainerLevel(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                  break;
              }
              case F_TRAINER_PARTY_CUSTOM_MOVESET:
@@ -840,9 +1259,10 @@ index 64c9e59..871b835 100644
 +                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
  
                  personalityValue += nameHash << 8;
-                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
 -                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
-+                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                fixedIV = Nz_TrainerIV(partyData[i].iv * MAX_PER_STAT_IVS / 255);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), Nz_TrainerLevel(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
  
 -                for (j = 0; j < MAX_MON_MOVES; j++)
 -                {
@@ -862,9 +1282,10 @@ index 64c9e59..871b835 100644
 +                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
  
                  personalityValue += nameHash << 8;
-                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
 -                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
-+                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                fixedIV = Nz_TrainerIV(partyData[i].iv * MAX_PER_STAT_IVS / 255);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), Nz_TrainerLevel(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
  
                  SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
                  break;
@@ -878,9 +1299,10 @@ index 64c9e59..871b835 100644
 +                    nameHash += gSpeciesNames[Nz_TrainerSpecies(partyData[i].species, trainerNum)][j];
  
                  personalityValue += nameHash << 8;
-                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
+-                fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
 -                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
-+                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
++                fixedIV = Nz_TrainerIV(partyData[i].iv * MAX_PER_STAT_IVS / 255);
++                CreateMon(&party[i], Nz_TrainerSpecies(partyData[i].species, trainerNum), Nz_TrainerLevel(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                  SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
  
 -                for (j = 0; j < MAX_MON_MOVES; j++)
@@ -989,6 +1411,63 @@ index be9cd8e..f26acc2 100644
          return TRUE;
      if (MetatileBehaviorForbidsBiking(metatileBehavior) != TRUE)
          return FALSE;
+diff --git a/src/data/pokemon/evolution.h b/src/data/pokemon/evolution.h
+index c9b0cf7..832683e 100644
+--- a/src/data/pokemon/evolution.h
++++ b/src/data/pokemon/evolution.h
+@@ -38,16 +38,16 @@ const struct Evolution gEvolutionTable[NUM_SPECIES][EVOS_PER_MON] =
+     [SPECIES_GROWLITHE]  = {{EVO_ITEM, ITEM_FIRE_STONE, SPECIES_ARCANINE}},
+     [SPECIES_POLIWAG]    = {{EVO_LEVEL, 25, SPECIES_POLIWHIRL}},
+     [SPECIES_POLIWHIRL]  = {{EVO_ITEM, ITEM_WATER_STONE, SPECIES_POLIWRATH},
+-                            {EVO_TRADE_ITEM, ITEM_KINGS_ROCK, SPECIES_POLITOED}},
++                            {EVO_LEVEL, 40, SPECIES_POLITOED}},
+     [SPECIES_ABRA]       = {{EVO_LEVEL, 16, SPECIES_KADABRA}},
+-    [SPECIES_KADABRA]    = {{EVO_TRADE, 0, SPECIES_ALAKAZAM}},
++    [SPECIES_KADABRA]    = {{EVO_LEVEL, 36, SPECIES_ALAKAZAM}},
+     [SPECIES_MACHOP]     = {{EVO_LEVEL, 28, SPECIES_MACHOKE}},
+-    [SPECIES_MACHOKE]    = {{EVO_TRADE, 0, SPECIES_MACHAMP}},
++    [SPECIES_MACHOKE]    = {{EVO_LEVEL, 36, SPECIES_MACHAMP}},
+     [SPECIES_BELLSPROUT] = {{EVO_LEVEL, 21, SPECIES_WEEPINBELL}},
+     [SPECIES_WEEPINBELL] = {{EVO_ITEM, ITEM_LEAF_STONE, SPECIES_VICTREEBEL}},
+     [SPECIES_TENTACOOL]  = {{EVO_LEVEL, 30, SPECIES_TENTACRUEL}},
+     [SPECIES_GEODUDE]    = {{EVO_LEVEL, 25, SPECIES_GRAVELER}},
+-    [SPECIES_GRAVELER]   = {{EVO_TRADE, 0, SPECIES_GOLEM}},
++    [SPECIES_GRAVELER]   = {{EVO_LEVEL, 36, SPECIES_GOLEM}},
+     [SPECIES_PONYTA]     = {{EVO_LEVEL, 40, SPECIES_RAPIDASH}},
+     [SPECIES_SLOWPOKE]   = {{EVO_LEVEL, 37, SPECIES_SLOWBRO},
+                             {EVO_TRADE_ITEM, ITEM_KINGS_ROCK, SPECIES_SLOWKING}},
+@@ -57,8 +57,8 @@ const struct Evolution gEvolutionTable[NUM_SPECIES][EVOS_PER_MON] =
+     [SPECIES_GRIMER]     = {{EVO_LEVEL, 38, SPECIES_MUK}},
+     [SPECIES_SHELLDER]   = {{EVO_ITEM, ITEM_WATER_STONE, SPECIES_CLOYSTER}},
+     [SPECIES_GASTLY]     = {{EVO_LEVEL, 25, SPECIES_HAUNTER}},
+-    [SPECIES_HAUNTER]    = {{EVO_TRADE, 0, SPECIES_GENGAR}},
+-    [SPECIES_ONIX]       = {{EVO_TRADE_ITEM, ITEM_METAL_COAT, SPECIES_STEELIX}},
++    [SPECIES_HAUNTER]    = {{EVO_LEVEL, 36, SPECIES_GENGAR}},
++    [SPECIES_ONIX]       = {{EVO_LEVEL, 40, SPECIES_STEELIX}},
+     [SPECIES_DROWZEE]    = {{EVO_LEVEL, 26, SPECIES_HYPNO}},
+     [SPECIES_KRABBY]     = {{EVO_LEVEL, 28, SPECIES_KINGLER}},
+     [SPECIES_VOLTORB]    = {{EVO_LEVEL, 30, SPECIES_ELECTRODE}},
+@@ -68,17 +68,17 @@ const struct Evolution gEvolutionTable[NUM_SPECIES][EVOS_PER_MON] =
+     [SPECIES_RHYHORN]    = {{EVO_LEVEL, 42, SPECIES_RHYDON}},
+     [SPECIES_CHANSEY]    = {{EVO_FRIENDSHIP, 0, SPECIES_BLISSEY}},
+     [SPECIES_HORSEA]     = {{EVO_LEVEL, 32, SPECIES_SEADRA}},
+-    [SPECIES_SEADRA]     = {{EVO_TRADE_ITEM, ITEM_DRAGON_SCALE, SPECIES_KINGDRA}},
++    [SPECIES_SEADRA]     = {{EVO_LEVEL, 45, SPECIES_KINGDRA}},
+     [SPECIES_GOLDEEN]    = {{EVO_LEVEL, 33, SPECIES_SEAKING}},
+     [SPECIES_STARYU]     = {{EVO_ITEM, ITEM_WATER_STONE, SPECIES_STARMIE}},
+-    [SPECIES_SCYTHER]    = {{EVO_TRADE_ITEM, ITEM_METAL_COAT, SPECIES_SCIZOR}},
++    [SPECIES_SCYTHER]    = {{EVO_LEVEL, 40, SPECIES_SCIZOR}},
+     [SPECIES_MAGIKARP]   = {{EVO_LEVEL, 20, SPECIES_GYARADOS}},
+     [SPECIES_EEVEE]      = {{EVO_ITEM, ITEM_THUNDER_STONE, SPECIES_JOLTEON},
+                             {EVO_ITEM, ITEM_WATER_STONE, SPECIES_VAPOREON},
+                             {EVO_ITEM, ITEM_FIRE_STONE, SPECIES_FLAREON},
+                             {EVO_FRIENDSHIP_DAY, 0, SPECIES_ESPEON},
+                             {EVO_FRIENDSHIP_NIGHT, 0, SPECIES_UMBREON}},
+-    [SPECIES_PORYGON]    = {{EVO_TRADE_ITEM, ITEM_UP_GRADE, SPECIES_PORYGON2}},
++    [SPECIES_PORYGON]    = {{EVO_LEVEL, 35, SPECIES_PORYGON2}},
+     [SPECIES_OMANYTE]    = {{EVO_LEVEL, 40, SPECIES_OMASTAR}},
+     [SPECIES_KABUTO]     = {{EVO_LEVEL, 40, SPECIES_KABUTOPS}},
+     [SPECIES_DRATINI]    = {{EVO_LEVEL, 30, SPECIES_DRAGONAIR}},
 diff --git a/src/data/text/abilities.h b/src/data/text/abilities.h
 index c2002be..0bf4f72 100644
 --- a/src/data/text/abilities.h
@@ -1474,10 +1953,10 @@ index 3768b3c..7f6eab8 100644
  static void ResetMiniGamesResults(void)
 diff --git a/src/nuzlocke.c b/src/nuzlocke.c
 new file mode 100644
-index 0000000..3347aa5
+index 0000000..6e8bd01
 --- /dev/null
 +++ b/src/nuzlocke.c
-@@ -0,0 +1,639 @@
+@@ -0,0 +1,778 @@
 +#include "global.h"
 +#include "gflib.h"
 +#include "string_util.h"
@@ -1501,6 +1980,7 @@ index 0000000..3347aa5
 +#include "constants/opponents.h"
 +#include "constants/vars.h"
 +#include "constants/songs.h"
++#include "constants/battle_ai.h"
 +#include "script_pokemon_util.h"
 +
 +u8 Nz_SendMonToPC(struct Pokemon *mon); // pokemon.c
@@ -1566,6 +2046,7 @@ index 0000000..3347aa5
 +static const u8 sQName_3[] = _("Exp. a todos");
 +static const u8 sQName_4[] = _("Recordar mejorado");
 +static const u8 sQName_5[] = _("Velocidad combate");
++static const u8 sQName_6[] = _("Dificultad");
 +
 +static const u8 sQDesc_0[] = _("Zapatillas desde el inicio y\ncorrer también en interiores.");
 +static const u8 sQDesc_1[] = _("Las MT no se gastan al\nenseñar su movimiento.");
@@ -1573,6 +2054,12 @@ index 0000000..3347aa5
 +static const u8 sQDesc_3[] = _("Todo el equipo gana EXP; los\nque no luchan, la mitad.");
 +static const u8 sQDesc_4[] = _("Recuerda movimientos de preevo-\nluciones y en Centros POKéMON.");
 +static const u8 sQDesc_5[] = _("Acelera animaciones y texto\nen combate (x1, x2 o x4).");
++static const u8 sQDesc_6[] = _("Nivel, IA e IV de rivales.\nKaizo: sin objetos en combate.");
++
++static const u8 sDiff0[] = _("Rubí/Zafiro");
++static const u8 sDiff1[] = _("Espada");
++static const u8 sDiff2[] = _("Blanco 2");
++static const u8 sDiff3[] = _("Kaizo");
 +
 +static const u8 sText_Speed0[] = _("x1 (normal)");
 +static const u8 sText_Speed1[] = _("x2");
@@ -1580,13 +2067,14 @@ index 0000000..3347aa5
 +
 +#define NZ_IDX_QOL_FIRST 16
 +#define NZ_IDX_SPEED     21
++#define NZ_IDX_DIFF      22
 +
-+static const u8 *const sQolNames[] = { sQName_0, sQName_1, sQName_2, sQName_3, sQName_4, sQName_5 };
-+static const u8 *const sQolDescs[] = { sQDesc_0, sQDesc_1, sQDesc_2, sQDesc_3, sQDesc_4, sQDesc_5 };
++static const u8 *const sQolNames[] = { sQName_0, sQName_1, sQName_2, sQName_3, sQName_4, sQName_5, sQName_6 };
++static const u8 *const sQolDescs[] = { sQDesc_0, sQDesc_1, sQDesc_2, sQDesc_3, sQDesc_4, sQDesc_5, sQDesc_6 };
 +
 +static u8 NzValidIdx(u8 idx)
 +{
-+    if (idx < NZ_OPT_COUNT || (idx >= NZ_IDX_QOL_FIRST && idx <= NZ_IDX_SPEED))
++    if (idx < NZ_OPT_COUNT || (idx >= NZ_IDX_QOL_FIRST && idx <= NZ_IDX_DIFF))
 +        return idx;
 +    return 0;
 +}
@@ -1606,6 +2094,11 @@ index 0000000..3347aa5
 +    static const u8 *const sSpeedTexts[] = { sText_Speed0, sText_Speed1, sText_Speed2 };
 +    bool8 on;
 +
++    if (idx == NZ_IDX_DIFF)
++    {
++        static const u8 *const sDiffTexts[] = { sDiff0, sDiff1, sDiff2, sDiff3 };
++        return sDiffTexts[gSaveBlock1Ptr->nz.difficulty & 3];
++    }
 +    if (idx == NZ_IDX_SPEED)
 +        return sSpeedTexts[gSaveBlock1Ptr->nz.battleSpeed % 3];
 +    if (idx < NZ_OPT_COUNT)
@@ -1641,7 +2134,13 @@ index 0000000..3347aa5
 +
 +    if (idx != NzValidIdx(idx))
 +        return;
-+    if (idx == NZ_IDX_SPEED)
++    if (idx == NZ_IDX_DIFF)
++    {
++        // Ruby/Sapphire -> Black 2 -> Kaizo -> Sword -> Ruby/Sapphire
++        static const u8 sNext[4] = { 2, 0, 3, 1 };
++        gSaveBlock1Ptr->nz.difficulty = sNext[gSaveBlock1Ptr->nz.difficulty & 3];
++    }
++    else if (idx == NZ_IDX_SPEED)
 +        gSaveBlock1Ptr->nz.battleSpeed = (gSaveBlock1Ptr->nz.battleSpeed + 1) % 3;
 +    else if (idx >= NZ_IDX_QOL_FIRST)
 +        gSaveBlock1Ptr->nz.options2 ^= (1 << (idx - NZ_IDX_QOL_FIRST));
@@ -2070,6 +2569,8 @@ index 0000000..3347aa5
 +{
 +    gSaveBlock1Ptr->nz.options2 = (1 << NZ2_OPT_COUNT) - 1;
 +    gSaveBlock1Ptr->nz.battleSpeed = 0;
++    gSaveBlock1Ptr->nz.difficulty = 0;
++    gSaveBlock1Ptr->nz.eventsClaimed = 0;
 +}
 +
 +u16 NzReminderOn(void)
@@ -2116,6 +2617,123 @@ index 0000000..3347aa5
 +        }
 +    }
 +    return SPECIES_NONE;
++}
++
++// ---------------------------------------------------------------------------
++// Difficulty modes (0 = Ruby/Sapphire, 1 = Sword, 2 = Black 2, 3 = Kaizo)
++// ---------------------------------------------------------------------------
++
++u8 Nz_TrainerLevel(u8 level)
++{
++    static const u8 sPercent[4] = { 100, 85, 112, 125 };
++    u32 lv = (level * sPercent[gSaveBlock1Ptr->nz.difficulty & 3]) / 100;
++
++    if (lv < 1)
++        lv = 1;
++    if (lv > MAX_LEVEL)
++        lv = MAX_LEVEL;
++    return lv;
++}
++
++u8 Nz_TrainerIV(u8 iv)
++{
++    u8 d = gSaveBlock1Ptr->nz.difficulty & 3;
++
++    if (d >= 2)
++        return MAX_PER_STAT_IVS;
++    if (d == 1)
++        return iv / 2;
++    return iv;
++}
++
++u32 Nz_AiFlags(u32 flags)
++{
++    u8 d = gSaveBlock1Ptr->nz.difficulty & 3;
++
++    if (d == 1)
++        return flags & AI_SCRIPT_CHECK_BAD_MOVE;
++    if (d == 2)
++        return flags | AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY;
++    if (d == 3)
++        return flags | AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY
++             | AI_SCRIPT_SETUP_FIRST_TURN | AI_SCRIPT_RISKY | AI_SCRIPT_HP_AWARE;
++    return flags;
++}
++
++bool8 Nz_ItemsBlocked(void)
++{
++    return gSaveBlock1Ptr->nz.difficulty == 3 && (gBattleTypeFlags & BATTLE_TYPE_TRAINER);
++}
++
++// ---------------------------------------------------------------------------
++// Special NPC events. VAR_0x8004 = event index.
++// ---------------------------------------------------------------------------
++
++struct NzEvent
++{
++    u8 badges;
++    u16 species;
++    u8 level;
++};
++
++static const struct NzEvent sEvents[] =
++{
++    { 1, SPECIES_EEVEE, 15 },
++    { 2, SPECIES_DRATINI, 20 },
++    { 5, SPECIES_LARVITAR, 30 },
++    { 3, SPECIES_NONE, 0 },   // item event
++};
++
++static u8 NzCountBadges(void)
++{
++    u8 i, n = 0;
++
++    for (i = 0; i < NUM_BADGES; i++)
++    {
++        if (FlagGet(FLAG_BADGE01_GET + i))
++            n++;
++    }
++    return n;
++}
++
++// 0 = available, 1 = already claimed, 2 = not enough badges
++u16 NzEventStatus(void)
++{
++    u8 idx = gSpecialVar_0x8004;
++
++    if (idx >= NELEMS(sEvents))
++        return 1;
++    if (gSaveBlock1Ptr->nz.eventsClaimed & (1 << idx))
++        return 1;
++    if (NzCountBadges() < sEvents[idx].badges)
++        return 2;
++    return 0;
++}
++
++// 0 = into party, 1 = into PC, 3 = no room
++u16 NzEventGiveMon(void)
++{
++    u8 idx = gSpecialVar_0x8004;
++    u16 species;
++    u8 result;
++
++    if (idx >= NELEMS(sEvents) || sEvents[idx].species == SPECIES_NONE)
++        return 3;
++    if (gSaveBlock1Ptr->nz.seed == 0)
++        gSaveBlock1Ptr->nz.seed = (Random() % 0xFFFE) + 1;
++    species = Nz_RandomSpecies(sEvents[idx].species, 0x3000 + idx);
++    result = ScriptGiveMon(species, sEvents[idx].level, ITEM_NONE, 0, 0, 0);
++    if (result != MON_GIVEN_TO_PARTY && result != MON_GIVEN_TO_PC)
++        return 3;
++    gSaveBlock1Ptr->nz.eventsClaimed |= (1 << idx);
++    VarSet(VAR_TEMP_5, species);
++    return result == MON_GIVEN_TO_PARTY ? 0 : 1;
++}
++
++void NzEventMark(void)
++{
++    if (gSpecialVar_0x8004 < 8)
++        gSaveBlock1Ptr->nz.eventsClaimed |= (1 << gSpecialVar_0x8004);
 +}
 diff --git a/src/overworld.c b/src/overworld.c
 index 339014d..a5afe10 100644
@@ -2472,7 +3090,7 @@ index b3e3c77..db3a33f 100644
      AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 15 + sMonSkillsPrinterXpos->toNextLevel, 100, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.expToNextLevelStrBuf);
  }
 diff --git a/src/script_menu.c b/src/script_menu.c
-index 41eebd8..a7ec066 100644
+index 41eebd8..2520ecb 100644
 --- a/src/script_menu.c
 +++ b/src/script_menu.c
 @@ -1,4 +1,5 @@
@@ -2481,7 +3099,7 @@ index 41eebd8..a7ec066 100644
  #include "gflib.h"
  #include "menu.h"
  #include "task.h"
-@@ -502,6 +503,69 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
+@@ -502,6 +503,76 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
      { gOtherText_Exit }
  };
  
@@ -2520,12 +3138,19 @@ index 41eebd8..a7ec066 100644
 +static const u8 sNzQ_3[] = _("Repel moderno");
 +static const u8 sNzQ_4[] = _("Exp. a todos");
 +static const u8 sNzQ_5[] = _("Recordar mejorado");
++static const u8 sNzQ_6[] = _("Dificultad");
++static const u8 sNzMart_0[] = _("Tienda normal");
++static const u8 sNzMart_1[] = _("Objetos especiales");
 +static const u8 sNzNurse_0[] = _("Curar POKéMON");
 +static const u8 sNzNurse_1[] = _("Recordar movimientos");
 +static const u8 sNzNurse_2[] = _("Salir");
 +
 +static const struct MenuAction sMultichoiceList_NzQol[] = {
-+    { sNzQ_0 }, { sNzQ_1 }, { sNzQ_2 }, { sNzQ_3 }, { sNzQ_4 }, { sNzQ_5 }, { sNzBack }
++    { sNzQ_0 }, { sNzQ_1 }, { sNzQ_2 }, { sNzQ_3 }, { sNzQ_4 }, { sNzQ_5 }, { sNzQ_6 }, { sNzBack }
++};
++
++static const struct MenuAction sMultichoiceList_NzMart[] = {
++    { sNzMart_0 }, { sNzMart_1 }
 +};
 +
 +static const struct MenuAction sMultichoiceList_NzNurse[] = {
@@ -2551,7 +3176,7 @@ index 41eebd8..a7ec066 100644
  static const struct MultichoiceListStruct sMultichoiceLists[] = {
      [MULTICHOICE_YES_NO]                                     = MULTICHOICE(sMultichoiceList_YesNo),
      [MULTICHOICE_EEVEELUTIONS]                               = MULTICHOICE(sMultichoiceList_Eeveelutions),
-@@ -568,6 +632,13 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
+@@ -568,6 +639,14 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
      [MULTICHOICE_62]                                         = MULTICHOICE(sMultichoiceList_62),
      [MULTICHOICE_JOIN_OR_LEAD]                               = MULTICHOICE(sMultichoiceList_JoinOrLead),
      [MULTICHOICE_TRAINER_TOWER_MODE]                         = MULTICHOICE(sMultichoiceList_TrainerTowerMode),
@@ -2559,6 +3184,7 @@ index 41eebd8..a7ec066 100644
 +    [MULTICHOICE_NZ_ABILITY]                                 = MULTICHOICE(sMultichoiceList_NzAbility),
 +    [MULTICHOICE_NZ_QOL]                                     = MULTICHOICE(sMultichoiceList_NzQol),
 +    [MULTICHOICE_NZ_NURSE]                                   = MULTICHOICE(sMultichoiceList_NzNurse),
++    [MULTICHOICE_NZ_MART]                                    = MULTICHOICE(sMultichoiceList_NzMart),
 +    [MULTICHOICE_NZ_RULES_1]                                 = MULTICHOICE(sMultichoiceList_NzRules1),
 +    [MULTICHOICE_NZ_RULES_2]                                 = MULTICHOICE(sMultichoiceList_NzRules2),
 +    [MULTICHOICE_NZ_RANDOM]                                  = MULTICHOICE(sMultichoiceList_NzRandom),
