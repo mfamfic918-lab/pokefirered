@@ -252,10 +252,10 @@ index 1384b7d..dd5dabd 100644
 +PalletTown_Text_AbilityManAnother:
 +	.string "¿Quieres probar con otro POKéMON?$"
 diff --git a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
-index edc6ac3..4eb5220 100644
+index edc6ac3..9f3406d 100644
 --- a/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
 +++ b/data/maps/PalletTown_PlayersHouse_2F/scripts.inc
-@@ -43,6 +43,303 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
+@@ -43,6 +43,437 @@ PalletTown_PlayersHouse_2F_EventScript_PC::
  	releaseall
  	end
  
@@ -269,6 +269,8 @@ index edc6ac3..4eb5220 100644
 +	case 2, Nz_EventScript_MenuRandom
 +	case 3, Nz_EventScript_MenuGifts
 +	case 4, Nz_EventScript_MenuQol
++	case 5, Nz_EventScript_MenuRematch
++	case 6, Nz_EventScript_MenuStats
 +	goto Nz_EventScript_MenuExit
 +	end
 +
@@ -526,6 +528,138 @@ index edc6ac3..4eb5220 100644
 +	call Nz_EventScript_ToggleCall
 +	goto Nz_EventScript_MenuQol
 +	end
++
++Nz_EventScript_MenuStats::
++	special NzBufferStats
++	msgbox gStringVar4, MSGBOX_DEFAULT
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_MenuRematch::
++	specialvar VAR_RESULT, NzRematchNext
++	goto_if_eq VAR_RESULT, 13, Nz_EventScript_RematchLocked
++	goto_if_eq VAR_RESULT, 12, Nz_EventScript_RematchAllDone
++	msgbox Nz_Text_RematchAsk, MSGBOX_YESNO
++	goto_if_eq VAR_RESULT, NO, PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	special NzRematchBegin
++	closemessage
++	specialvar VAR_RESULT, NzRematchNext
++	switch VAR_RESULT
++	case 0, Nz_EventScript_Rematch0
++	case 1, Nz_EventScript_Rematch1
++	case 2, Nz_EventScript_Rematch2
++	case 3, Nz_EventScript_Rematch3
++	case 4, Nz_EventScript_Rematch4
++	case 5, Nz_EventScript_Rematch5
++	case 6, Nz_EventScript_Rematch6
++	case 7, Nz_EventScript_Rematch7
++	case 8, Nz_EventScript_Rematch8
++	case 9, Nz_EventScript_Rematch9
++	case 10, Nz_EventScript_Rematch10
++	case 11, Nz_EventScript_Rematch11
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_Rematch0::
++	trainerbattle_no_intro TRAINER_LEADER_BROCK, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch1::
++	trainerbattle_no_intro TRAINER_LEADER_MISTY, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch2::
++	trainerbattle_no_intro TRAINER_LEADER_LT_SURGE, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch3::
++	trainerbattle_no_intro TRAINER_LEADER_ERIKA, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch4::
++	trainerbattle_no_intro TRAINER_LEADER_KOGA, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch5::
++	trainerbattle_no_intro TRAINER_LEADER_SABRINA, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch6::
++	trainerbattle_no_intro TRAINER_LEADER_BLAINE, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch7::
++	trainerbattle_no_intro TRAINER_LEADER_GIOVANNI, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch8::
++	trainerbattle_no_intro TRAINER_ELITE_FOUR_LORELEI, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch9::
++	trainerbattle_no_intro TRAINER_ELITE_FOUR_BRUNO, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch10::
++	trainerbattle_no_intro TRAINER_ELITE_FOUR_AGATHA, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_Rematch11::
++	trainerbattle_no_intro TRAINER_ELITE_FOUR_LANCE, Nz_Text_RematchDefeat
++	goto Nz_EventScript_RematchWon
++	end
++
++Nz_EventScript_RematchWon::
++	specialvar VAR_RESULT, NzRematchWon
++	goto_if_eq VAR_RESULT, 1, Nz_EventScript_RematchRewardE4
++	giveitem ITEM_RARE_CANDY, 2
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_RematchRewardE4::
++	giveitem ITEM_RARE_CANDY, 3
++	giveitem ITEM_PP_MAX, 1
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_RematchLocked::
++	msgbox Nz_Text_RematchLocked, MSGBOX_DEFAULT
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_EventScript_RematchAllDone::
++	msgbox Nz_Text_RematchAllDone, MSGBOX_DEFAULT
++	goto PalletTown_PlayersHouse_2F_EventScript_NuzlockeMenu
++	end
++
++Nz_Text_RematchAsk:
++	.string "Siguiente revancha: {STR_VAR_1}.\n"
++	.string "Sus POKéMON tendrán +12 niveles.\p"
++	.string "Premio: CARAMELOS RAROS.\n"
++	.string "¿Quieres desafiarle?$"
++
++Nz_Text_RematchDefeat:
++	.string "¡Has mejorado mucho!\n"
++	.string "Me has vuelto a ganar.$"
++
++Nz_Text_RematchLocked:
++	.string "Las revanchas se desbloquean\n"
++	.string "al llegar a la LIGA POKéMON.$"
++
++Nz_Text_RematchAllDone:
++	.string "Ya ganaste todas las revanchas.\n"
++	.string "¡Eres leyenda!$"
 +
 +Nz_EventScript_ToggleCall::
 +	special NzBufferOptionPrompt
@@ -972,10 +1106,10 @@ index 97bf963..96824ed 100644
  Text_RepelWoreOff::
  	.string "REPEL's effect wore off…$"
 diff --git a/data/specials.inc b/data/specials.inc
-index d880bf6..9916d88 100644
+index d880bf6..ef186d2 100644
 --- a/data/specials.inc
 +++ b/data/specials.inc
-@@ -452,4 +452,21 @@ gSpecials::
+@@ -452,4 +452,25 @@ gSpecials::
  	def_special UpdateLoreleiDollCollection
  	def_special LoopWingFlapSound
  	def_special CreateEnemyEventMon
@@ -996,6 +1130,10 @@ index d880bf6..9916d88 100644
 +	def_special NzEventStatus
 +	def_special NzEventGiveMon
 +	def_special NzEventMark
++	def_special NzRematchNext
++	def_special NzRematchWon
++	def_special NzRematchBegin
++	def_special NzBufferStats
  gSpecialsEnd::
 diff --git a/include/constants/menu.h b/include/constants/menu.h
 index 7c36f36..6d676da 100644
@@ -1030,10 +1168,10 @@ index 4a386d5..42cb361 100644
  // field_screen_effect
  extern const u8 EventScript_AfterWhiteOutMomHeal[];
 diff --git a/include/global.h b/include/global.h
-index 77155b0..f6973bc 100644
+index 77155b0..eb18095 100644
 --- a/include/global.h
 +++ b/include/global.h
-@@ -756,6 +756,20 @@ struct ExternalEventFlags
+@@ -756,6 +756,25 @@ struct ExternalEventFlags
  
  } __attribute__((packed));/*size = 0x15*/
  
@@ -1048,13 +1186,18 @@ index 77155b0..f6973bc 100644
 +    u16 lastRepel;      // last REPEL item used (for the auto-reuse prompt)
 +    u8 difficulty;      // 0 Ruby/Sapphire, 1 Sword, 2 Black 2, 3 Kaizo
 +    u8 eventsClaimed;   // special NPC events already claimed (bitmask)
-+    u8 reserved[356];
++    u16 rematchDone;    // gym leader / Elite Four rematches won (bitmask)
++    u8 rematchBonus;    // extra trainer levels while a rematch is running
++    u8 pad;
++    u16 statCaught;     // Pokemon caught
++    u16 statDeaths;     // Pokemon lost (permadeath)
++    u8 reserved[348];
 +}; // size: 400 (0x190)
 +
  struct SaveBlock1
  {
      /*0x0000*/ struct Coords16 pos;
-@@ -806,7 +820,7 @@ struct SaveBlock1
+@@ -806,7 +825,7 @@ struct SaveBlock1
      /*0x30D0*/ struct Roamer roamer;
      /*0x30EC*/ struct EnigmaBerry enigmaBerry;
      /*0x3120*/ struct MysteryGiftSave mysteryGift;
@@ -1065,10 +1208,10 @@ index 77155b0..f6973bc 100644
      /*0x3A18*/ u8 seen2[DEX_FLAGS_NO];
 diff --git a/include/nuzlocke.h b/include/nuzlocke.h
 new file mode 100644
-index 0000000..7cde3f8
+index 0000000..2210d13
 --- /dev/null
 +++ b/include/nuzlocke.h
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,89 @@
 +#ifndef GUARD_NUZLOCKE_H
 +#define GUARD_NUZLOCKE_H
 +
@@ -1152,6 +1295,10 @@ index 0000000..7cde3f8
 +u16 NzEventStatus(void);
 +u16 NzEventGiveMon(void);
 +void NzEventMark(void);
++u16 NzRematchNext(void);
++u16 NzRematchWon(void);
++void NzRematchBegin(void);
++void NzBufferStats(void);
 +
 +#endif // GUARD_NUZLOCKE_H
 diff --git a/ld_script.ld b/ld_script.ld
@@ -1194,7 +1341,7 @@ index 74a3077..b0ea9f3 100644
  
  u8 BattleAI_ChooseMoveOrAction(void)
 diff --git a/src/battle_controller_player.c b/src/battle_controller_player.c
-index d8e1fe7..1fead95 100644
+index d8e1fe7..bbd96d0 100644
 --- a/src/battle_controller_player.c
 +++ b/src/battle_controller_player.c
 @@ -1,4 +1,5 @@
@@ -1215,6 +1362,77 @@ index d8e1fe7..1fead95 100644
              BtlController_EmitTwoReturnValues(1, B_ACTION_USE_ITEM, 0);
              break;
          case 2:
+@@ -1405,12 +1411,69 @@ static void MoveSelectionDisplayPpNumber(void)
+     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP_REMAINING);
+ }
+ 
++static const u8 sText_EffNone[] = _("x0/");
++static const u8 sText_EffQuarter[] = _("x.25/");
++static const u8 sText_EffHalf[] = _("x.5/");
++static const u8 sText_EffDouble[] = _("x2/");
++static const u8 sText_EffQuad[] = _("x4/");
++
++// Effectiveness tag shown instead of "TYPE/" (NULL = neutral or status move).
++static const u8 *Nz_GetEffectivenessTag(u16 move)
++{
++    u8 moveType, target, i;
++    u16 mul = 100;
++    u8 defTypes[2];
++
++    if (move == MOVE_NONE || gBattleMoves[move].power == 0)
++        return NULL;
++    target = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
++    if (gAbsentBattlerFlags & gBitTable[target] || gBattleMons[target].hp == 0)
++        target = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
++    if (gAbsentBattlerFlags & gBitTable[target] || gBattleMons[target].hp == 0)
++        return NULL;
++    moveType = gBattleMoves[move].type;
++    if (moveType == TYPE_MYSTERY)
++        return NULL;
++    defTypes[0] = gBattleMons[target].type1;
++    defTypes[1] = gBattleMons[target].type2;
++    if (moveType == TYPE_GROUND && gBattleMons[target].ability == ABILITY_LEVITATE)
++        return sText_EffNone;
++    for (i = 0; i < 2; i++)
++    {
++        u16 t;
++
++        if (i == 1 && defTypes[1] == defTypes[0])
++            break;
++        for (t = 0; gTypeEffectiveness[t] != TYPE_ENDTABLE && gTypeEffectiveness[t] != TYPE_FORESIGHT; t += 3)
++        {
++            if (gTypeEffectiveness[t] == moveType && gTypeEffectiveness[t + 1] == defTypes[i])
++            {
++                mul = mul * gTypeEffectiveness[t + 2] / 10;
++                break;
++            }
++        }
++    }
++    if (mul == 0)
++        return sText_EffNone;
++    if (mul <= 25)
++        return sText_EffQuarter;
++    if (mul <= 50)
++        return sText_EffHalf;
++    if (mul >= 400)
++        return sText_EffQuad;
++    if (mul >= 200)
++        return sText_EffDouble;
++    return NULL;
++}
++
+ static void MoveSelectionDisplayMoveType(void)
+ {
++    const u8 *tag;
+     u8 *txtPtr;
+     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
+ 
+-    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
++    tag = Nz_GetEffectivenessTag(moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]);
++    txtPtr = StringCopy(gDisplayedStringBattle, tag != NULL ? tag : gText_MoveInterfaceType);
+     *txtPtr++ = EXT_CTRL_CODE_BEGIN;
+     *txtPtr++ = 6;
+     *txtPtr++ = 1;
 diff --git a/src/battle_main.c b/src/battle_main.c
 index 64c9e59..8fa69da 100644
 --- a/src/battle_main.c
@@ -1791,6 +2009,42 @@ index c2002be..0bf4f72 100644
 +    [ABILITY_CACOPHONY] = _("Cacofonía"),
 +    [ABILITY_AIR_LOCK] = _("Bucle Aire"),
  };
+diff --git a/src/evolution_scene.c b/src/evolution_scene.c
+index 442aa15..d537eb5 100644
+--- a/src/evolution_scene.c
++++ b/src/evolution_scene.c
+@@ -207,6 +207,8 @@ void BeginEvolutionScene(struct Pokemon* mon, u16 postEvoSpecies, bool8 canStopE
+     SetMainCallback2(CB2_BeginEvolutionScene);
+ }
+ 
++static bool8 sNzEvoBLocked;
++
+ void EvolutionScene(struct Pokemon* mon, u16 postEvoSpecies, bool8 canStopEvo, u8 partyId)
+ {
+     u8 name[20];
+@@ -215,6 +217,7 @@ void EvolutionScene(struct Pokemon* mon, u16 postEvoSpecies, bool8 canStopEvo, u
+     const struct CompressedSpritePalette* pokePal;
+     u8 id;
+ 
++    sNzEvoBLocked = (gMain.heldKeys & B_BUTTON) != 0;
+     SetHBlankCallback(NULL);
+     SetVBlankCallback(NULL);
+     CpuFill32(0, (void *)(VRAM), VRAM_SIZE);
+@@ -649,8 +652,14 @@ static void Task_EvolutionScene(u8 taskId)
+         return;
+     }
+ 
++    // B must be released once before it can cancel, so a B held down from the
++    // battle text (to speed it up) does not stop the evolution by accident
++    if (!(gMain.heldKeys & B_BUTTON))
++        sNzEvoBLocked = FALSE;
++
+     // check if B Button was held, so the evolution gets stopped
+     if (gMain.heldKeys == B_BUTTON
++        && !sNzEvoBLocked
+         && gTasks[taskId].tState == EVOSTATE_WAIT_CYCLE_MON_SPRITE
+         && gTasks[sEvoGraphicsTaskId].isActive
+         && gTasks[taskId].tBits & TASK_BIT_CAN_STOP)
 diff --git a/src/field_player_avatar.c b/src/field_player_avatar.c
 index ef086dd..388bf3b 100644
 --- a/src/field_player_avatar.c
@@ -1953,10 +2207,10 @@ index 3768b3c..7f6eab8 100644
  static void ResetMiniGamesResults(void)
 diff --git a/src/nuzlocke.c b/src/nuzlocke.c
 new file mode 100644
-index 0000000..6e8bd01
+index 0000000..5b06b31
 --- /dev/null
 +++ b/src/nuzlocke.c
-@@ -0,0 +1,778 @@
+@@ -0,0 +1,872 @@
 +#include "global.h"
 +#include "gflib.h"
 +#include "string_util.h"
@@ -2390,6 +2644,9 @@ index 0000000..6e8bd01
 +    u8 i;
 +    u8 alive = 0;
 +
++    gSaveBlock1Ptr->nz.rematchBonus = 0;
++    if (gBattleOutcome == B_OUTCOME_CAUGHT && gSaveBlock1Ptr->nz.statCaught < 9999)
++        gSaveBlock1Ptr->nz.statCaught++;
 +    if (!NZ_ON(NZ_BIT_DEATH))
 +        return;
 +    if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_POKEDUDE | BATTLE_TYPE_OLD_MAN_TUTORIAL))
@@ -2420,6 +2677,8 @@ index 0000000..6e8bd01
 +            if (NZ_ON(NZ_BIT_GRAVEYARD))
 +                Nz_SendMonToPC(mon);
 +            ZeroMonData(mon);
++            if (gSaveBlock1Ptr->nz.statDeaths < 9999)
++                gSaveBlock1Ptr->nz.statDeaths++;
 +        }
 +    }
 +    CompactPartySlots();
@@ -2626,7 +2885,7 @@ index 0000000..6e8bd01
 +u8 Nz_TrainerLevel(u8 level)
 +{
 +    static const u8 sPercent[4] = { 100, 85, 112, 125 };
-+    u32 lv = (level * sPercent[gSaveBlock1Ptr->nz.difficulty & 3]) / 100;
++    u32 lv = (level * sPercent[gSaveBlock1Ptr->nz.difficulty & 3]) / 100 + gSaveBlock1Ptr->nz.rematchBonus;
 +
 +    if (lv < 1)
 +        lv = 1;
@@ -2734,6 +2993,95 @@ index 0000000..6e8bd01
 +{
 +    if (gSpecialVar_0x8004 < 8)
 +        gSaveBlock1Ptr->nz.eventsClaimed |= (1 << gSpecialVar_0x8004);
++}
++
++// ---------------------------------------------------------------------------
++// Gym leader / Elite Four rematches (from the bedroom PC) and statistics
++// ---------------------------------------------------------------------------
++
++static const u8 sText_StatCaught[] = _("Capturas: ");
++static const u8 sText_StatDeaths[] = _("\nMuertes: ");
++static const u8 sText_StatPage[] = _("\p");
++static const u8 sText_StatZones[] = _("Zonas usadas: ");
++static const u8 sText_StatRematch[] = _("\nRevanchas: ");
++static const u8 sText_StatOf12[] = _("/12");
++
++#define NZ_REMATCH_COUNT 12
++
++static const u16 sRematchTrainers[NZ_REMATCH_COUNT] =
++{
++    TRAINER_LEADER_BROCK, TRAINER_LEADER_MISTY, TRAINER_LEADER_LT_SURGE, TRAINER_LEADER_ERIKA,
++    TRAINER_LEADER_KOGA, TRAINER_LEADER_SABRINA, TRAINER_LEADER_BLAINE, TRAINER_LEADER_GIOVANNI,
++    TRAINER_ELITE_FOUR_LORELEI, TRAINER_ELITE_FOUR_BRUNO, TRAINER_ELITE_FOUR_AGATHA, TRAINER_ELITE_FOUR_LANCE
++};
++
++static u8 NzRematchIndex(void)
++{
++    u8 i;
++
++    for (i = 0; i < NZ_REMATCH_COUNT; i++)
++    {
++        if (!(gSaveBlock1Ptr->nz.rematchDone & (1 << i)))
++            return i;
++    }
++    return NZ_REMATCH_COUNT;
++}
++
++// 0..11 = next rematch (name in STR_VAR_1), 12 = all done, 13 = locked
++u16 NzRematchNext(void)
++{
++    u8 idx;
++
++    if (!FlagGet(FLAG_SYS_GAME_CLEAR))
++        return 13;
++    idx = NzRematchIndex();
++    if (idx < NZ_REMATCH_COUNT)
++        StringCopy(gStringVar1, gTrainers[sRematchTrainers[idx]].trainerName);
++    return idx;
++}
++
++void NzRematchBegin(void)
++{
++    gSaveBlock1Ptr->nz.rematchBonus = 12;
++}
++
++// Marks the rematch as won. Returns 0 for a gym leader, 1 for the Elite Four.
++u16 NzRematchWon(void)
++{
++    u8 idx = NzRematchIndex();
++
++    gSaveBlock1Ptr->nz.rematchBonus = 0;
++    if (idx >= NZ_REMATCH_COUNT)
++        return 0;
++    gSaveBlock1Ptr->nz.rematchDone |= (1 << idx);
++    return idx >= 8;
++}
++
++void NzBufferStats(void)
++{
++    u8 *p;
++    u8 i, zones = 0, done = 0;
++
++    for (i = 0; i < 255; i++)
++    {
++        if (NzAreaUsed(i))
++            zones++;
++    }
++    for (i = 0; i < NZ_REMATCH_COUNT; i++)
++    {
++        if (gSaveBlock1Ptr->nz.rematchDone & (1 << i))
++            done++;
++    }
++    p = StringCopy(gStringVar4, sText_StatCaught);
++    p = ConvertIntToDecimalStringN(p, gSaveBlock1Ptr->nz.statCaught, STR_CONV_MODE_LEFT_ALIGN, 4);
++    p = StringCopy(p, sText_StatDeaths);
++    p = ConvertIntToDecimalStringN(p, gSaveBlock1Ptr->nz.statDeaths, STR_CONV_MODE_LEFT_ALIGN, 4);
++    p = StringCopy(p, sText_StatPage);
++    p = StringCopy(p, sText_StatZones);
++    p = ConvertIntToDecimalStringN(p, zones, STR_CONV_MODE_LEFT_ALIGN, 3);
++    p = StringCopy(p, sText_StatRematch);
++    p = ConvertIntToDecimalStringN(p, done, STR_CONV_MODE_LEFT_ALIGN, 2);
++    StringCopy(p, sText_StatOf12);
 +}
 diff --git a/src/overworld.c b/src/overworld.c
 index 339014d..a5afe10 100644
@@ -3090,7 +3438,7 @@ index b3e3c77..db3a33f 100644
      AddTextPrinterParameterized3(sMonSummaryScreen->windowIds[POKESUM_WIN_RIGHT_PANE], FONT_NORMAL, 15 + sMonSkillsPrinterXpos->toNextLevel, 100, sLevelNickTextColors[0], TEXT_SKIP_DRAW, sMonSummaryScreen->summary.expToNextLevelStrBuf);
  }
 diff --git a/src/script_menu.c b/src/script_menu.c
-index 41eebd8..2520ecb 100644
+index 41eebd8..0ae4be0 100644
 --- a/src/script_menu.c
 +++ b/src/script_menu.c
 @@ -1,4 +1,5 @@
@@ -3099,7 +3447,7 @@ index 41eebd8..2520ecb 100644
  #include "gflib.h"
  #include "menu.h"
  #include "task.h"
-@@ -502,6 +503,76 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
+@@ -502,6 +503,78 @@ static const struct MenuAction sMultichoiceList_Exit[] = {
      { gOtherText_Exit }
  };
  
@@ -3109,6 +3457,8 @@ index 41eebd8..2520ecb 100644
 +static const u8 sNzMain_3[] = _("Regalos por medalla");
 +static const u8 sNzMain_4[] = _("Mejoras");
 +static const u8 sNzMain_5[] = _("Salir");
++static const u8 sNzRem[] = _("Revanchas");
++static const u8 sNzStat[] = _("Estadísticas");
 +static const u8 sNzR1_0[] = _("Captura por zona");
 +static const u8 sNzR1_1[] = _("Muerte permanente");
 +static const u8 sNzR1_2[] = _("Motes obligatorios");
@@ -3158,7 +3508,7 @@ index 41eebd8..2520ecb 100644
 +};
 +
 +static const struct MenuAction sMultichoiceList_NzMain[] = {
-+    { sNzMain_0 }, { sNzMain_1 }, { sNzMain_2 }, { sNzMain_3 }, { sNzMain_4 }, { sNzMain_5 }
++    { sNzMain_0 }, { sNzMain_1 }, { sNzMain_2 }, { sNzMain_3 }, { sNzMain_4 }, { sNzRem }, { sNzStat }, { sNzMain_5 }
 +};
 +
 +static const struct MenuAction sMultichoiceList_NzRules1[] = {
@@ -3176,7 +3526,7 @@ index 41eebd8..2520ecb 100644
  static const struct MultichoiceListStruct sMultichoiceLists[] = {
      [MULTICHOICE_YES_NO]                                     = MULTICHOICE(sMultichoiceList_YesNo),
      [MULTICHOICE_EEVEELUTIONS]                               = MULTICHOICE(sMultichoiceList_Eeveelutions),
-@@ -568,6 +639,14 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
+@@ -568,6 +641,14 @@ static const struct MultichoiceListStruct sMultichoiceLists[] = {
      [MULTICHOICE_62]                                         = MULTICHOICE(sMultichoiceList_62),
      [MULTICHOICE_JOIN_OR_LEAD]                               = MULTICHOICE(sMultichoiceList_JoinOrLead),
      [MULTICHOICE_TRAINER_TOWER_MODE]                         = MULTICHOICE(sMultichoiceList_TrainerTowerMode),
