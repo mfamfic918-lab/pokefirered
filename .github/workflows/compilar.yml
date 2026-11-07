@@ -1,23 +1,30 @@
-name: Compilar ROM hack
+name: Compilar ROMs por dificultad
+
+# Para descargar las ROMs: pestaña "Actions" > abrir la ejecución más reciente >
+# sección "Artifacts" al final de la página.
+# Para lanzarla a mano: Actions > "Compilar ROMs por dificultad" > Run workflow.
 
 on:
   push:
+    branches: [ master, dificultades ]
   workflow_dispatch:
 
 jobs:
   build:
+    name: ROM ${{ matrix.nombre }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dificultad: easy
+            nombre: Baja (Ruta Tranquila)
+          - dificultad: medium
+            nombre: Media (Liga Equilibrada)
+          - dificultad: hard
+            nombre: Alta (Modo Extremo)
     steps:
       - uses: actions/checkout@v4
-
-      - name: Aplicar parche Nuzlocke Randomizer
-        run: |
-          if [ -f nuzlocke.patch ]; then
-            git apply --whitespace=nowarn nuzlocke.patch
-            echo "Parche aplicado"
-          else
-            echo "No hay nuzlocke.patch: se compila el juego base"
-          fi
 
       - name: Instalar herramientas
         run: |
@@ -31,13 +38,13 @@ jobs:
           ./build.sh
           ./install.sh "$GITHUB_WORKSPACE"
 
-      - name: Compilar el juego
-        run: make -j"$(nproc)"
+      - name: Compilar el juego (${{ matrix.dificultad }})
+        run: make -j"$(nproc)" DIFFICULTY=${{ matrix.dificultad }}
 
       - name: Subir ROM
         uses: actions/upload-artifact@v4
         with:
-          name: rom-hack
-          path: "*.gba"
-          retention-days: 14
-
+          name: pokefirered-${{ matrix.dificultad }}
+          path: pokefirered_${{ matrix.dificultad }}.gba
+          if-no-files-found: error
+          retention-days: 30
