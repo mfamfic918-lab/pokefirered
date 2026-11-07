@@ -16,6 +16,7 @@
 #include "constants/maps.h"
 #include "constants/abilities.h"
 #include "constants/items.h"
+#include "difficulty.h"
 
 #define MAX_ENCOUNTER_RATE 1600
 
@@ -68,8 +69,27 @@ void DisableWildEncounters(bool8 state)
     sWildEncountersDisabled = state;
 }
 
+#if DIFFICULTY == DIFFICULTY_EASY
+// Cumulative slot thresholds (out of 100) that make the rare slots easier to
+// find. The original weights are land 20/20/10/10/10/10/5/5/4/4/1/1 and
+// water 60/30/5/4/1.
+static const u8 sEasyLandSlotThresholds[] = {16, 32, 42, 52, 62, 72, 78, 84, 90, 96, 98};
+static const u8 sEasyWaterSlotThresholds[] = {50, 80, 90, 97};
+#endif
+
 static u8 ChooseWildMonIndex_Land(void)
 {
+#if DIFFICULTY == DIFFICULTY_EASY
+    u8 i;
+    u8 rand = Random() % 100;
+
+    for (i = 0; i < ARRAY_COUNT(sEasyLandSlotThresholds); i++)
+    {
+        if (rand < sEasyLandSlotThresholds[i])
+            return i;
+    }
+    return 11;
+#else
     u8 rand = Random() % ENCOUNTER_CHANCE_LAND_MONS_TOTAL;
 
     if (rand < ENCOUNTER_CHANCE_LAND_MONS_SLOT_0)
@@ -96,10 +116,22 @@ static u8 ChooseWildMonIndex_Land(void)
         return 10;
     else
         return 11;
+#endif
 }
 
 static u8 ChooseWildMonIndex_WaterRock(void)
 {
+#if DIFFICULTY == DIFFICULTY_EASY
+    u8 i;
+    u8 rand = Random() % 100;
+
+    for (i = 0; i < ARRAY_COUNT(sEasyWaterSlotThresholds); i++)
+    {
+        if (rand < sEasyWaterSlotThresholds[i])
+            return i;
+    }
+    return 4;
+#else
     u8 rand = Random() % ENCOUNTER_CHANCE_WATER_MONS_TOTAL;
 
     if (rand < ENCOUNTER_CHANCE_WATER_MONS_SLOT_0)
@@ -112,6 +144,7 @@ static u8 ChooseWildMonIndex_WaterRock(void)
         return 3;
     else
         return 4;
+#endif
 }
 
 static u8 ChooseWildMonIndex_Fishing(u8 rod)
@@ -170,7 +203,12 @@ static u8 ChooseWildMonLevel(const struct WildPokemon * info)
     }
     mod = hi - lo + 1;
     res = Random() % mod;
+#if DIFFICULTY != DIFFICULTY_VANILLA
+    res = lo + res;
+    return DIFF_SCALE_LEVEL(res, DIFF_WILD_LEVEL_PERCENT);
+#else
     return lo + res;
+#endif
 }
 
 static u16 GetCurrentMapWildMonHeaderId(void)

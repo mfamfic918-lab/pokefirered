@@ -5,6 +5,7 @@
 #include "item.h"
 #include "random.h"
 #include "battle_ai_script_commands.h"
+#include "difficulty.h"
 #include "constants/abilities.h"
 #include "constants/battle_ai.h"
 #include "constants/battle_move_effects.h"
@@ -362,6 +363,21 @@ void BattleAI_SetupAIData(void)
         return;
     }
     AI_THINKING_STRUCT->aiFlags = gTrainers[gTrainerBattleOpponent_A].aiFlags;
+#if DIFFICULTY == DIFFICULTY_EASY
+    // Basic AI: it only avoids clearly useless moves
+    AI_THINKING_STRUCT->aiFlags = AI_SCRIPT_CHECK_BAD_MOVE;
+#elif DIFFICULTY == DIFFICULTY_MEDIUM
+    // Every trainer gets the full standard AI
+    AI_THINKING_STRUCT->aiFlags |= (AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY);
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+        AI_THINKING_STRUCT->aiFlags |= AI_SCRIPT_DOUBLE_BATTLE;
+#elif DIFFICULTY == DIFFICULTY_HARD
+    // Aggressive AI: finishes off targets, sets up on the first turn and keeps track of its HP
+    AI_THINKING_STRUCT->aiFlags |= (AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY
+                                  | AI_SCRIPT_SETUP_FIRST_TURN | AI_SCRIPT_HP_AWARE);
+    if (gBattleTypeFlags & BATTLE_TYPE_DOUBLE)
+        AI_THINKING_STRUCT->aiFlags |= AI_SCRIPT_DOUBLE_BATTLE;
+#endif
 }
 
 u8 BattleAI_ChooseMoveOrAction(void)

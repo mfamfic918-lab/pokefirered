@@ -4,6 +4,7 @@
 #include "battle_controllers.h"
 #include "random.h"
 #include "util.h"
+#include "difficulty.h"
 #include "constants/abilities.h"
 #include "constants/item_effects.h"
 #include "constants/items.h"
@@ -361,7 +362,7 @@ void AI_TrySwitchOrUseItem(void)
 
     if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
     {
-        if (ShouldSwitch())
+        if (DIFF_AI_MAY_SWITCH() && ShouldSwitch())
         {
             if (*(gBattleStruct->AI_monToSwitchIntoId + (GetBattlerPosition(gActiveBattler) >> 1)) == 6)
             {
@@ -393,7 +394,7 @@ void AI_TrySwitchOrUseItem(void)
             *(gBattleStruct->monToSwitchIntoId + gActiveBattler) = *(gBattleStruct->AI_monToSwitchIntoId + (GetBattlerPosition(gActiveBattler) >> 1));
             return;
         }
-        else if (ShouldUseItem())
+        else if (DIFF_AI_MAY_USE_ITEM() && ShouldUseItem())
         {
             return;
         }

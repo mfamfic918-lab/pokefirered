@@ -32,6 +32,7 @@
 #include "constants/items.h"
 #include "constants/hold_effects.h"
 #include "constants/songs.h"
+#include "difficulty.h"
 #include "constants/moves.h"
 #include "constants/abilities.h"
 #include "constants/pokemon.h"
@@ -3164,6 +3165,9 @@ static void Cmd_getexp(void)
             }
 
             calculatedExp = gSpeciesInfo[gBattleMons[gBattlerFainted].species].expYield * gBattleMons[gBattlerFainted].level / 7;
+#if DIFFICULTY != DIFFICULTY_VANILLA && DIFF_EXP_PERCENT != 100
+            calculatedExp = calculatedExp * DIFF_EXP_PERCENT / 100;
+#endif
 
             if (viaExpShare) // at least one mon is getting exp via exp share
             {

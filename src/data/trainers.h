@@ -3497,10 +3497,14 @@ const struct Trainer gTrainers[] = {
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_AQUA,
         .trainerPic = TRAINER_PIC_LEADER_GIOVANNI,
         .trainerName = _("GIOVANNI"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_GIOVANNI,
+#else
         .items = {ITEM_HYPER_POTION, ITEM_HYPER_POTION, ITEM_FULL_HEAL},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderGiovanni),
+        .party = LEADER_PARTY(sParty_LeaderGiovanni),
     },
     [TRAINER_TEAM_ROCKET_GRUNT] = {
         .trainerClass = TRAINER_CLASS_TEAM_ROCKET,
@@ -4137,70 +4141,98 @@ const struct Trainer gTrainers[] = {
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_MALE,
         .trainerPic = TRAINER_PIC_LEADER_BROCK,
         .trainerName = _("BROCK"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_BROCK,
+#else
         .items = {},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderBrock),
+        .party = LEADER_PARTY(sParty_LeaderBrock),
     },
     [TRAINER_LEADER_MISTY] = {
         .trainerClass = TRAINER_CLASS_LEADER,
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_FEMALE | F_TRAINER_FEMALE,
         .trainerPic = TRAINER_PIC_LEADER_MISTY,
         .trainerName = _("MISTY"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_MISTY,
+#else
         .items = {ITEM_SUPER_POTION},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderMisty),
+        .party = LEADER_PARTY(sParty_LeaderMisty),
     },
     [TRAINER_LEADER_LT_SURGE] = {
         .trainerClass = TRAINER_CLASS_LEADER,
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_MALE,
         .trainerPic = TRAINER_PIC_LEADER_LT_SURGE,
         .trainerName = _("LT. SURGE"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_LT_SURGE,
+#else
         .items = {ITEM_SUPER_POTION, ITEM_FULL_HEAL},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderLtSurge),
+        .party = LEADER_PARTY(sParty_LeaderLtSurge),
     },
     [TRAINER_LEADER_ERIKA] = {
         .trainerClass = TRAINER_CLASS_LEADER,
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_FEMALE | F_TRAINER_FEMALE,
         .trainerPic = TRAINER_PIC_LEADER_ERIKA,
         .trainerName = _("ERIKA"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_ERIKA,
+#else
         .items = {ITEM_HYPER_POTION, ITEM_FULL_HEAL},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderErika),
+        .party = LEADER_PARTY(sParty_LeaderErika),
     },
     [TRAINER_LEADER_KOGA] = {
         .trainerClass = TRAINER_CLASS_LEADER,
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_MALE,
         .trainerPic = TRAINER_PIC_LEADER_KOGA,
         .trainerName = _("KOGA"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_KOGA,
+#else
         .items = {ITEM_HYPER_POTION, ITEM_HYPER_POTION, ITEM_FULL_HEAL},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderKoga),
+        .party = LEADER_PARTY(sParty_LeaderKoga),
     },
     [TRAINER_LEADER_BLAINE] = {
         .trainerClass = TRAINER_CLASS_LEADER,
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_MALE,
         .trainerPic = TRAINER_PIC_LEADER_BLAINE,
         .trainerName = _("BLAINE"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_BLAINE,
+#else
         .items = {ITEM_HYPER_POTION, ITEM_HYPER_POTION, ITEM_FULL_HEAL},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderBlaine),
+        .party = LEADER_PARTY(sParty_LeaderBlaine),
     },
     [TRAINER_LEADER_SABRINA] = {
         .trainerClass = TRAINER_CLASS_LEADER,
         .encounterMusic_gender = TRAINER_ENCOUNTER_MUSIC_FEMALE | F_TRAINER_FEMALE,
         .trainerPic = TRAINER_PIC_LEADER_SABRINA,
         .trainerName = _("SABRINA"),
+#if DIFF_BOSS_TEAMS
+        .items = DIFF_ITEMS_LEADER_SABRINA,
+#else
         .items = {ITEM_HYPER_POTION, ITEM_HYPER_POTION, ITEM_FULL_HEAL},
+#endif
         .doubleBattle = FALSE,
         .aiFlags = AI_SCRIPT_CHECK_BAD_MOVE | AI_SCRIPT_TRY_TO_FAINT | AI_SCRIPT_CHECK_VIABILITY,
-        .party = NO_ITEM_CUSTOM_MOVES(sParty_LeaderSabrina),
+        .party = LEADER_PARTY(sParty_LeaderSabrina),
     },
     [TRAINER_GENTLEMAN_THOMAS] = {
         .trainerClass = TRAINER_CLASS_GENTLEMAN,

@@ -33,6 +33,7 @@
 #include "trig.h"
 #include "vs_seeker.h"
 #include "util.h"
+#include "difficulty.h"
 #include "constants/abilities.h"
 #include "constants/battle_move_effects.h"
 #include "constants/battle_setup.h"
@@ -42,6 +43,13 @@
 #include "constants/pokemon.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
+
+// Level of a trainer's Pokemon, adjusted for the selected difficulty
+#if DIFFICULTY != DIFFICULTY_VANILLA
+#define TRAINER_MON_LEVEL(lvl) DIFF_SCALE_LEVEL(lvl, DIFF_TRAINER_LEVEL_PERCENT)
+#else
+#define TRAINER_MON_LEVEL(lvl) (lvl)
+#endif
 
 static void SpriteCB_UnusedDebugSprite(struct Sprite *sprite);
 static void HandleAction_UseMove(void);
@@ -1574,7 +1582,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], partyData[i].species, TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                 break;
             }
             case F_TRAINER_PARTY_CUSTOM_MOVESET:
@@ -1586,7 +1594,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], partyData[i].species, TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
                 for (j = 0; j < MAX_MON_MOVES; j++)
                 {
@@ -1604,7 +1612,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], partyData[i].species, TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
                 SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
                 break;
@@ -1618,7 +1626,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], partyData[i].species, TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                 SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
 
                 for (j = 0; j < MAX_MON_MOVES; j++)

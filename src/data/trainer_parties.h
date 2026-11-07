@@ -4140,6 +4140,11 @@ static const struct TrainerMonNoItemDefaultMoves sParty_BossGiovanni2[] = {
     },
 };
 
+#if DIFF_BOSS_TEAMS
+#include "trainer_parties_difficulty.h"
+#endif
+
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderGiovanni[] = {
     {
         .iv = 0,
@@ -4172,6 +4177,7 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderGiovanni[] = {
         .moves = {MOVE_TAKE_DOWN, MOVE_ROCK_BLAST, MOVE_SCARY_FACE, MOVE_EARTHQUAKE},
     },
 };
+#endif
 
 static const struct TrainerMonNoItemDefaultMoves sParty_TeamRocketGrunt[] = {
     {
@@ -5449,6 +5455,7 @@ static const struct TrainerMonNoItemCustomMoves sParty_CooltrainerJulie[] = {
     },
 };
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_EliteFourLorelei[] = {
     {
         .iv = 250,
@@ -5486,7 +5493,9 @@ static const struct TrainerMonItemCustomMoves sParty_EliteFourLorelei[] = {
         .moves = {MOVE_CONFUSE_RAY, MOVE_ICE_BEAM, MOVE_SURF, MOVE_BODY_SLAM},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_EliteFourBruno[] = {
     {
         .iv = 250,
@@ -5524,7 +5533,9 @@ static const struct TrainerMonItemCustomMoves sParty_EliteFourBruno[] = {
         .moves = {MOVE_CROSS_CHOP, MOVE_BULK_UP, MOVE_SCARY_FACE, MOVE_ROCK_TOMB},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_EliteFourAgatha[] = {
     {
         .iv = 250,
@@ -5562,7 +5573,9 @@ static const struct TrainerMonItemCustomMoves sParty_EliteFourAgatha[] = {
         .moves = {MOVE_SHADOW_BALL, MOVE_SLUDGE_BOMB, MOVE_HYPNOSIS, MOVE_NIGHTMARE},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_EliteFourLance[] = {
     {
         .iv = 250,
@@ -5600,7 +5613,9 @@ static const struct TrainerMonItemCustomMoves sParty_EliteFourLance[] = {
         .moves = {MOVE_HYPER_BEAM, MOVE_SAFEGUARD, MOVE_OUTRAGE, MOVE_WING_ATTACK},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderBrock[] = {
     {
         .iv = 0,
@@ -5615,7 +5630,9 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderBrock[] = {
         .moves = {MOVE_TACKLE, MOVE_BIND, MOVE_ROCK_TOMB, MOVE_NONE},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderMisty[] = {
     {
         .iv = 0,
@@ -5630,7 +5647,9 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderMisty[] = {
         .moves = {MOVE_SWIFT, MOVE_RECOVER, MOVE_RAPID_SPIN, MOVE_WATER_PULSE},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderLtSurge[] = {
     {
         .iv = 0,
@@ -5651,7 +5670,9 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderLtSurge[] = {
         .moves = {MOVE_QUICK_ATTACK, MOVE_THUNDER_WAVE, MOVE_DOUBLE_TEAM, MOVE_SHOCK_WAVE},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderErika[] = {
     {
         .iv = 0,
@@ -5672,7 +5693,9 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderErika[] = {
         .moves = {MOVE_SLEEP_POWDER, MOVE_ACID, MOVE_STUN_SPORE, MOVE_GIGA_DRAIN},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderKoga[] = {
     {
         .iv = 0,
@@ -5699,7 +5722,9 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderKoga[] = {
         .moves = {MOVE_TACKLE, MOVE_SLUDGE, MOVE_SMOKESCREEN, MOVE_TOXIC},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderBlaine[] = {
     {
         .iv = 0,
@@ -5726,7 +5751,9 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderBlaine[] = {
         .moves = {MOVE_BITE, MOVE_ROAR, MOVE_TAKE_DOWN, MOVE_FIRE_BLAST},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonNoItemCustomMoves sParty_LeaderSabrina[] = {
     {
         .iv = 0,
@@ -5753,6 +5780,7 @@ static const struct TrainerMonNoItemCustomMoves sParty_LeaderSabrina[] = {
         .moves = {MOVE_PSYCHIC, MOVE_RECOVER, MOVE_FUTURE_SIGHT, MOVE_CALM_MIND},
     },
 };
+#endif
 
 static const struct TrainerMonNoItemDefaultMoves sParty_GentlemanThomas[] = {
     {
@@ -6163,6 +6191,7 @@ static const struct TrainerMonNoItemCustomMoves sParty_RivalRoute22LateCharmande
     },
 };
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_ChampionFirstSquirtle[] = {
     {
         .iv = 255,
@@ -6207,7 +6236,9 @@ static const struct TrainerMonItemCustomMoves sParty_ChampionFirstSquirtle[] = {
         .moves = {MOVE_HYDRO_PUMP, MOVE_RAIN_DANCE, MOVE_SKULL_BASH, MOVE_BITE},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_ChampionFirstBulbasaur[] = {
     {
         .iv = 255,
@@ -6252,7 +6283,9 @@ static const struct TrainerMonItemCustomMoves sParty_ChampionFirstBulbasaur[] = 
         .moves = {MOVE_SOLAR_BEAM, MOVE_SYNTHESIS, MOVE_SUNNY_DAY, MOVE_GROWTH},
     },
 };
+#endif
 
+#if !DIFF_BOSS_TEAMS
 static const struct TrainerMonItemCustomMoves sParty_ChampionFirstCharmander[] = {
     {
         .iv = 255,
@@ -6297,6 +6330,7 @@ static const struct TrainerMonItemCustomMoves sParty_ChampionFirstCharmander[] =
         .moves = {MOVE_FIRE_BLAST, MOVE_AERIAL_ACE, MOVE_SLASH, MOVE_FIRE_SPIN},
     },
 };
+#endif
 
 static const struct TrainerMonNoItemDefaultMoves sParty_ChannelerPatricia[] = {
     {

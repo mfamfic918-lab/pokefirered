@@ -8,6 +8,7 @@
 #include "party_menu.h"
 #include "pokedex.h"
 #include "script_pokemon_util.h"
+#include "difficulty.h"
 #include "constants/items.h"
 #include "constants/pokemon.h"
 
@@ -129,6 +130,10 @@ void CreateScriptedWildMon(u16 species, u8 level, u16 item)
 {
     u8 heldItem[2];
 
+#if DIFFICULTY != DIFFICULTY_VANILLA
+    // Scripted wild battles (Snorlax, the legendary birds, Mewtwo...) follow the wild level setting
+    level = DIFF_SCALE_LEVEL(level, DIFF_WILD_LEVEL_PERCENT);
+#endif
     ZeroEnemyPartyMons();
     CreateMon(&gEnemyParty[0], species, level, 32, 0, 0, OT_ID_PLAYER_ID, 0);
     if (item)
