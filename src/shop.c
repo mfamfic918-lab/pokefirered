@@ -32,7 +32,7 @@
 #include "constants/game_stat.h"
 #include "constants/field_weather.h"
 
-#define MAX_EXTENDED_MART_ITEMS 40
+#define MAX_EXTENDED_MART_ITEMS 23 // the longest Mart list has 10 items, plus 8 healing items
 
 // Price of an item bought in a Mart, adjusted for the selected difficulty.
 // Selling prices are not affected.

@@ -11,8 +11,15 @@
 #include "overworld.h"
 #include "quest_log.h"
 #include "sloopsvc.h"
+#include "difficulty.h"
 
+// The save blocks are moved by a random offset in this range each time the game starts.
+// The difficulty builds use a smaller range to free EWRAM: 3 x 96 bytes.
+#if DIFF_EXTRAS
+#define SAVEBLOCK_MOVE_RANGE    32
+#else
 #define SAVEBLOCK_MOVE_RANGE    128
+#endif
 
 struct LoadedSaveData
 {

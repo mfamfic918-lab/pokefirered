@@ -77,6 +77,12 @@ INCLUDE_SCANINC_ARGS := $(INCLUDE_DIRS:%=-I %)
 
 O_LEVEL ?= 2
 CPPFLAGS := $(INCLUDE_CPP_ARGS) -Wno-trigraphs -D$(GAME_VERSION) -DREVISION=$(GAME_REVISION) -D$(GAME_LANGUAGE) -DMODERN=$(MODERN) -DDIFFICULTY=$(DIFFICULTY_ID)
+
+# The difficulty builds leave out the debug printing/asserts that the retail game forgot to disable.
+# That also drops about 1.9 KB of C library data from EWRAM.
+ifneq ($(DIFFICULTY),vanilla)
+  CPPFLAGS += -DNDEBUG
+endif
 ifeq ($(MODERN),0)
   CPPFLAGS += -I tools/agbcc/include -I tools/agbcc -nostdinc -undef -std=gnu89
   CC1 := tools/agbcc/bin/agbcc$(EXE)

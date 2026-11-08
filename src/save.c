@@ -92,7 +92,6 @@ COMMON_DATA struct SaveSectorLocation gRamSaveSectorLocations[NUM_SECTORS_PER_SL
 COMMON_DATA u16 gSaveAttemptStatus = 0;
 
 EWRAM_DATA struct SaveSector gSaveDataBuffer = {0};
-EWRAM_DATA u32 gSaveUnusedVar2 = 0;
 
 void ClearSaveData(void)
 {

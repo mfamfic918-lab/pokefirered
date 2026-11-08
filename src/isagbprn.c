@@ -4,6 +4,11 @@
 #include "gba/gba.h"
 #include "malloc.h"
 #include "mini_printf.h"
+#include "difficulty.h"
+
+// The difficulty builds leave out all the debug printing code. Nothing in the game calls it,
+// and its use of vsprintf links about 1.9 KB of C library data into EWRAM.
+#if !DIFF_EXTRAS
 
 #define AGB_PRINT_FLUSH_ADDR 0x9FE209D
 #define AGB_PRINT_STRUCT_ADDR 0x9FE20F8
@@ -263,3 +268,5 @@ void MgbaAssert(const char *pFile, s32 nLine, const char *pExpression, bool32 nS
 #endif
 
 #endif
+
+#endif // !DIFF_EXTRAS
