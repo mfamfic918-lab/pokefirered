@@ -70,6 +70,30 @@
 #endif // DIFFICULTY
 
 // ---------------------------------------------------------------------------
+// Extra features, enabled on the three difficulties (not on the original game)
+// ---------------------------------------------------------------------------
+
+#if DIFFICULTY != DIFFICULTY_VANILLA
+#define DIFF_EXTRAS             1  // master switch for the features below
+#define DIFF_RUN_ANYWHERE       1  // Running Shoes from the start, also inside buildings
+#define DIFF_INFINITE_TMS       1  // TMs are not used up when taught
+#define DIFF_EXP_ALL            1  // every healthy party Pokemon gets Exp. Share experience
+#define DIFF_EXP_PC             1  // Pokemon stored in the PC boxes also gain experience
+#else
+#define DIFF_EXTRAS             0
+#define DIFF_RUN_ANYWHERE       0
+#define DIFF_INFINITE_TMS       0
+#define DIFF_EXP_ALL            0
+#define DIFF_EXP_PC             0
+#endif
+
+#if DIFFICULTY == DIFFICULTY_HARD
+#define DIFF_RANDOM_NPC_TEAMS   1  // trainers (except gym leaders, Elite Four and Champion) get different Pokemon
+#else
+#define DIFF_RANDOM_NPC_TEAMS   0
+#endif
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

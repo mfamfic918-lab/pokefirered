@@ -36,6 +36,7 @@
 #include "metatile_behavior.h"
 #include "overworld.h"
 #include "party_menu.h"
+#include "difficulty.h"
 #include "player_pc.h"
 #include "pokedex.h"
 #include "pokemon.h"
@@ -4285,7 +4286,7 @@ static void CB2_UseItem(void)
     {
         GiveMoveToMon(&gPlayerParty[gPartyMenu.slotId], ItemIdToBattleMoveId(gSpecialVar_ItemId));
         AdjustFriendship(&gPlayerParty[gPartyMenu.slotId], FRIENDSHIP_EVENT_LEARN_TMHM);
-        if (gSpecialVar_ItemId < ITEM_HM01)
+        if (gSpecialVar_ItemId < ITEM_HM01 && !DIFF_INFINITE_TMS)
             RemoveBagItem(gSpecialVar_ItemId, 1);
         SetMainCallback2(gPartyMenu.exitCallback);
     }
@@ -4305,7 +4306,7 @@ static void CB2_UseTMHMAfterForgettingMove(void)
         SetMonMoveSlot(mon, ItemIdToBattleMoveId(gSpecialVar_ItemId), moveIdx);
         AdjustFriendship(mon, FRIENDSHIP_EVENT_LEARN_TMHM);
         ItemUse_SetQuestLogEvent(QL_EVENT_USED_ITEM, mon, gSpecialVar_ItemId, move);
-        if (gSpecialVar_ItemId < ITEM_HM01)
+        if (gSpecialVar_ItemId < ITEM_HM01 && !DIFF_INFINITE_TMS)
             RemoveBagItem(gSpecialVar_ItemId, 1);
         SetMainCallback2(gPartyMenu.exitCallback);
     }
@@ -4809,7 +4810,7 @@ static void Task_LearnedMove(u8 taskId)
     if (learnMoveMethod == LEARN_VIA_TMHM)
     {
         AdjustFriendship(mon, FRIENDSHIP_EVENT_LEARN_TMHM);
-        if (item < ITEM_HM01)
+        if (item < ITEM_HM01 && !DIFF_INFINITE_TMS)
             RemoveBagItem(item, 1);
     }
     GetMonNickname(mon, gStringVar1);

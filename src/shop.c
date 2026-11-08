@@ -26,6 +26,7 @@
 #include "quest_log.h"
 #include "script.h"
 #include "difficulty.h"
+#include "random.h"
 #include "constants/songs.h"
 #include "constants/items.h"
 #include "constants/game_stat.h"
@@ -83,7 +84,7 @@ struct ShopData
 
 static EWRAM_DATA s16 sViewportObjectEvents[OBJECT_EVENTS_COUNT][4] = {0};
 static EWRAM_DATA struct ShopData sShopData = {0};
-#if DIFF_EXTRA_MART_HEALING
+#if DIFF_EXTRAS
 static EWRAM_DATA u16 sExtendedMartItems[MAX_EXTENDED_MART_ITEMS + 1] = {0};
 #endif
 static EWRAM_DATA u8 sShopMenuWindowId = 0;
@@ -1191,6 +1192,33 @@ static const u16 *AddExtraMartHealingItems(const u16 *items)
     }
     sExtendedMartItems[count] = ITEM_NONE;
     return sExtendedMartItems;
+}
+#endif
+
+#if DIFF_EXTRAS
+#define RANDOM_TM_MART_SIZE 8
+
+// Called by the TM vendor NPC (data/scripts/diff_extras.inc): opens a Mart that
+// sells random TMs. The stock is different every time.
+void ShowRandomTMMart(void)
+{
+    u8 count = 0;
+    u8 i;
+    u16 item;
+
+    while (count < RANDOM_TM_MART_SIZE)
+    {
+        item = ITEM_TM01 + (Random() % (ITEM_TM50 - ITEM_TM01 + 1));
+        for (i = 0; i < count; i++)
+        {
+            if (sExtendedMartItems[i] == item)
+                break;
+        }
+        if (i == count)
+            sExtendedMartItems[count++] = item;
+    }
+    sExtendedMartItems[count] = ITEM_NONE;
+    CreatePokemartMenu(sExtendedMartItems);
 }
 #endif
 

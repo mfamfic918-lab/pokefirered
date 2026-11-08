@@ -25,6 +25,11 @@
 #include "constants/items.h"
 #include "constants/help_system.h"
 #include "constants/songs.h"
+#include "constants/moves.h"
+#include "constants/species.h"
+#include "pokedex.h"
+#include "characters.h"
+#include "difficulty.h"
 
 EWRAM_DATA struct PokemonStorageSystemData *gStorage = NULL;
 static EWRAM_DATA bool8 sInPartyMenu = 0;
@@ -2044,6 +2049,143 @@ static void Task_OnBPressed(u8 taskId)
     }
 }
 
+#if DIFF_EXTRAS
+// ---------------------------------------------------------------------------
+// PC codes (difficulty builds only)
+//
+// Type one of these codes as the name of a box (PC > Someone's PC > Name box)
+// and the matching Pokemon is sent to your boxes. Each code works once per
+// save file. Letters can be typed in upper or lower case.
+// ---------------------------------------------------------------------------
+#define NUM_PC_CODES 3
+
+struct PCCodeReward
+{
+    const u8 *code;
+    u16 flag;
+    u16 species;
+    u16 heldItem;
+    u16 moves[MAX_MON_MOVES];
+    u8 evs[6]; // HP, Atk, Def, Speed, SpAtk, SpDef
+};
+
+static const u8 sPCCode1[] = _("ROTO1");
+static const u8 sPCCode2[] = _("ROTO2");
+static const u8 sPCCode3[] = _("ROTO3");
+
+static const struct PCCodeReward sPCCodeRewards[NUM_PC_CODES] = {
+    {
+        .code = sPCCode1,
+        .flag = FLAG_DIFF_CODE_1_USED,
+        .species = SPECIES_MEWTWO,
+        .heldItem = ITEM_LEFTOVERS,
+        .moves = {MOVE_PSYCHIC, MOVE_RECOVER, MOVE_ICE_BEAM, MOVE_THUNDERBOLT},
+        .evs = {6, 0, 0, 252, 252, 0},
+    },
+    {
+        .code = sPCCode2,
+        .flag = FLAG_DIFF_CODE_2_USED,
+        .species = SPECIES_LUGIA,
+        .heldItem = ITEM_LEFTOVERS,
+        .moves = {MOVE_AEROBLAST, MOVE_RECOVER, MOVE_CALM_MIND, MOVE_ICE_BEAM},
+        .evs = {252, 0, 6, 0, 252, 0},
+    },
+    {
+        .code = sPCCode3,
+        .flag = FLAG_DIFF_CODE_3_USED,
+        .species = SPECIES_HO_OH,
+        .heldItem = ITEM_LEFTOVERS,
+        .moves = {MOVE_SACRED_FIRE, MOVE_EARTHQUAKE, MOVE_RECOVER, MOVE_SWORDS_DANCE},
+        .evs = {6, 252, 0, 252, 0, 0},
+    },
+};
+
+static const u16 sPCCodeEVFields[6] = {
+    MON_DATA_HP_EV, MON_DATA_ATK_EV, MON_DATA_DEF_EV, MON_DATA_SPEED_EV, MON_DATA_SPATK_EV, MON_DATA_SPDEF_EV
+};
+
+static u8 UpperCaseChar(u8 c)
+{
+    if (c >= CHAR_a && c <= CHAR_z)
+        return c - (CHAR_a - CHAR_A);
+    return c;
+}
+
+static bool8 BoxNameMatchesCode(const u8 *name, const u8 *code)
+{
+    while (*code != EOS)
+    {
+        if (UpperCaseChar(*name) != *code)
+            return FALSE;
+        name++;
+        code++;
+    }
+    return *name == EOS;
+}
+
+static bool8 StoreMonInFirstFreeBoxSlot(struct Pokemon *mon)
+{
+    u8 i, pos;
+    u8 startBox = StorageGetCurrentBox();
+
+    for (i = 0; i < TOTAL_BOXES_COUNT; i++)
+    {
+        u8 box = (startBox + i) % TOTAL_BOXES_COUNT;
+
+        for (pos = 0; pos < IN_BOX_COUNT; pos++)
+        {
+            if (GetBoxMonDataAt(box, pos, MON_DATA_SPECIES) == SPECIES_NONE)
+            {
+                gPokemonStoragePtr->boxes[box][pos] = mon->box;
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
+static void TryGivePCCodeReward(void)
+{
+    u8 i, j;
+    const u8 *boxName = GetBoxNamePtr(StorageGetCurrentBox());
+
+    for (i = 0; i < NUM_PC_CODES; i++)
+    {
+        const struct PCCodeReward *reward = &sPCCodeRewards[i];
+        struct Pokemon mon;
+        u16 dexNum;
+        u8 level = 100;
+
+        if (FlagGet(reward->flag) || !BoxNameMatchesCode(boxName, reward->code))
+            continue;
+
+        CreateMon(&mon, reward->species, level, 31, FALSE, 0, OT_ID_PLAYER_ID, 0);
+        for (j = 0; j < MAX_MON_MOVES; j++)
+            SetMonMoveSlot(&mon, reward->moves[j], j);
+        for (j = 0; j < 6; j++)
+            SetMonData(&mon, sPCCodeEVFields[j], &reward->evs[j]);
+        SetMonData(&mon, MON_DATA_HELD_ITEM, &reward->heldItem);
+        CalculateMonStats(&mon);
+
+        if (!StoreMonInFirstFreeBoxSlot(&mon))
+            return; // all boxes are full: try again next time
+
+        dexNum = SpeciesToNationalPokedexNum(reward->species);
+        GetSetPokedexFlag(dexNum, FLAG_SET_SEEN);
+        GetSetPokedexFlag(dexNum, FLAG_SET_CAUGHT);
+        FlagSet(reward->flag);
+        PlaySE(SE_EXP_MAX);
+        return;
+    }
+}
+
+static void CB2_ReturnToPokeStorageAfterNaming(void)
+{
+    TryGivePCCodeReward();
+    CB2_ReturnToPokeStorage();
+}
+#endif // DIFF_EXTRAS
+
 static void Task_ChangeScreen(u8 taskId)
 {
     struct Pokemon *party;
@@ -2072,7 +2214,12 @@ static void Task_ChangeScreen(u8 taskId)
         break;
     case SCREEN_CHANGE_NAME_BOX:
         FreePokeStorageData();
+        
+#if DIFF_EXTRAS
+        DoNamingScreen(NAMING_SCREEN_BOX, GetBoxNamePtr(StorageGetCurrentBox()), 0, 0, 0, CB2_ReturnToPokeStorageAfterNaming);
+#else
         DoNamingScreen(NAMING_SCREEN_BOX, GetBoxNamePtr(StorageGetCurrentBox()), 0, 0, 0, CB2_ReturnToPokeStorage);
+#endif
         break;
     case SCREEN_CHANGE_ITEM_FROM_BAG:
         FreePokeStorageData();

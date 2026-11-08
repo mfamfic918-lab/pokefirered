@@ -29,6 +29,7 @@
 #include "berry_powder.h"
 #include "pokemon_jump.h"
 #include "event_scripts.h"
+#include "difficulty.h"
 
 // this file's functions
 static void ResetMiniGamesResults(void);
@@ -149,6 +150,9 @@ void NewGameInitData(void)
     RunScriptImmediately(EventScript_ResetAllMapFlags);
     StringCopy(gSaveBlock1Ptr->rivalName, rivalName);
     ResetTrainerTowerResults();
+#if !DIFF_EXTRAS
+    FlagSet(FLAG_DIFF_HIDE_EXTRA_NPCS);
+#endif
 }
 
 static void ResetMiniGamesResults(void)

@@ -847,6 +847,7 @@ Text_PlayerWhatCanIDoForYou::
 	.string "What can I do for you?$"
 
 	.include "data/text/obtain_item.inc"
+	.include "data/text/diff_extras.inc"
 
 Text_MakingPreparations::
 	.string "じゅんびちゅうです！$"
@@ -1066,6 +1067,7 @@ EventScript_ResetAllMapFlags::
 	.include "data/scripts/hall_of_fame.inc"
 	.include "data/scripts/pkmn_center_nurse.inc"
 	.include "data/scripts/obtain_item.inc"
+	.include "data/scripts/diff_extras.inc"
 	.include "data/scripts/pc.inc"
 
 Common_ShowEasyChatScreen::

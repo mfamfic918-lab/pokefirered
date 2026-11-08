@@ -3111,6 +3111,42 @@ static void Cmd_jumpiftype(void)
         gBattlescriptCurrInstr += 7;
 }
 
+#if DIFF_EXP_PC
+// Pokemon stored in the PC boxes gain the same experience as an Exp. Share holder.
+// Only the experience points change: the level is worked out when the Pokemon
+// is withdrawn, and it does not learn new moves while it sits in the box.
+static void GiveExpToBoxMons(u32 amount)
+{
+    u8 box, pos;
+
+    if (amount == 0)
+        return;
+
+    for (box = 0; box < TOTAL_BOXES_COUNT; box++)
+    {
+        for (pos = 0; pos < IN_BOX_COUNT; pos++)
+        {
+            struct BoxPokemon *boxMon = GetBoxedMonPtr(box, pos);
+            u16 species = GetBoxMonData(boxMon, MON_DATA_SPECIES);
+            u32 exp, maxExp;
+
+            if (species == SPECIES_NONE || species == SPECIES_EGG || GetBoxMonData(boxMon, MON_DATA_SANITY_IS_EGG))
+                continue;
+
+            exp = GetBoxMonData(boxMon, MON_DATA_EXP);
+            maxExp = gExperienceTables[gSpeciesInfo[species].growthRate][MAX_LEVEL];
+            if (exp >= maxExp)
+                continue;
+
+            exp += amount;
+            if (exp > maxExp)
+                exp = maxExp;
+            SetBoxMonData(boxMon, MON_DATA_EXP, &exp);
+        }
+    }
+}
+#endif
+
 static void Cmd_getexp(void)
 {
     u16 item;
@@ -3160,7 +3196,7 @@ static void Cmd_getexp(void)
                 else
                     holdEffect = ItemId_GetHoldEffect(item);
 
-                if (holdEffect == HOLD_EFFECT_EXP_SHARE)
+                if (DIFF_EXP_ALL || holdEffect == HOLD_EFFECT_EXP_SHARE)
                     viaExpShare++;
             }
 
@@ -3187,6 +3223,10 @@ static void Cmd_getexp(void)
                 gExpShareExp = 0;
             }
 
+#if DIFF_EXP_PC
+            GiveExpToBoxMons(gExpShareExp);
+#endif
+
             gBattleScripting.getexpState++;
             gBattleStruct->expGetterMonId = 0;
             gBattleStruct->sentInPokes = sentIn;
@@ -3202,7 +3242,7 @@ static void Cmd_getexp(void)
             else
                 holdEffect = ItemId_GetHoldEffect(item);
 
-            if (holdEffect != HOLD_EFFECT_EXP_SHARE && !(gBattleStruct->sentInPokes & 1))
+            if (!DIFF_EXP_ALL && holdEffect != HOLD_EFFECT_EXP_SHARE && !(gBattleStruct->sentInPokes & 1))
             {
                 *(&gBattleStruct->sentInPokes) >>= 1;
                 gBattleScripting.getexpState = 5;
@@ -3231,7 +3271,7 @@ static void Cmd_getexp(void)
                     else
                         gBattleMoveDamage = 0;
 
-                    if (holdEffect == HOLD_EFFECT_EXP_SHARE)
+                    if (DIFF_EXP_ALL || holdEffect == HOLD_EFFECT_EXP_SHARE)
                         gBattleMoveDamage += gExpShareExp;
                     if (holdEffect == HOLD_EFFECT_LUCKY_EGG)
                         gBattleMoveDamage = (gBattleMoveDamage * 150) / 100;

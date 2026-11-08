@@ -239,6 +239,10 @@ PalletTown_ProfessorOaksLab_Text_ThoseArePokeBalls::
 PalletTown_ProfessorOaksLab_Text_OaksLastMon::
     .string "That's PROF. OAK's last POKéMON.$"
 
+PalletTown_ProfessorOaksLab_Text_TakeTheLastMonToo::
+    .string "That's PROF. OAK's last POKéMON.\n"
+    .string "Do you want to take it too?$"
+
 PalletTown_ProfessorOaksLab_Text_PressStartToOpenMenu::
     .string "Press START to open the MENU!$"
 
