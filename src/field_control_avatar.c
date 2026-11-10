@@ -1,4 +1,5 @@
 #include "global.h"
+#include "difficulty.h"
 #include "gflib.h"
 #include "bike.h"
 #include "coord_event_weather.h"
@@ -662,6 +663,14 @@ static bool8 TryStartStepCountScript(u16 metatileBehavior)
             ScriptContext_SetupScript(EventScript_VsSeekerChargingDone);
             return TRUE;
         }
+#if DIFF_NUZLOCKE
+        else if (FlagGet(FLAG_DIFF_NUZLOCKE_DEATH_MSG))
+        {
+            FlagClear(FLAG_DIFF_NUZLOCKE_DEATH_MSG);
+            ScriptContext_SetupScript(EventScript_DiffNuzlockeFallen);
+            return TRUE;
+        }
+#endif
         else if (UpdatePoisonStepCounter() == TRUE)
         {
             ScriptContext_SetupScript(EventScript_FieldPoison);

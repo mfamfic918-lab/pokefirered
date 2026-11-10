@@ -3,6 +3,13 @@
 
 	.if DIFFICULTY != 0
 
+EventScript_DiffNuzlockeFallen::
+	lockall
+	buffernumberstring STR_VAR_1, VAR_0x40F9
+	msgbox DiffNuzlocke_Text_Fallen
+	releaseall
+	end
+
 Common_EventScript_TMVendor::
 	lock
 	faceplayer
@@ -41,6 +48,8 @@ Common_EventScript_LeftoversNPC_NoSpace::
 	end
 
 	.else
+EventScript_DiffNuzlockeFallen::
+	end
 @ The original game has no use for these NPCs, which are hidden; the scripts only need to exist
 Common_EventScript_TMVendor::
 Common_EventScript_LeftoversNPC::

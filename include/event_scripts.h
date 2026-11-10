@@ -737,6 +737,7 @@ extern const u8 gControlsGuide_Text_StartButton[];
 extern const u8 gControlsGuide_Text_SelectButton[];
 extern const u8 gControlsGuide_Text_LRButtons[];
 extern const u8 gOakSpeech_Text_AskPlayerGender[];
+extern const u8 gOakSpeech_Text_AskNuzlocke[];
 extern const u8 gPikachuIntro_Text_Page1[];
 extern const u8 gPikachuIntro_Text_Page2[];
 extern const u8 gPikachuIntro_Text_Page3[];
@@ -1236,6 +1237,7 @@ extern const u8 EventScript_Waterfall[];
 extern const u8 EventScript_CantUseWaterfall[];
 extern const u8 EventScript_VsSeekerChargingDone[];
 extern const u8 EventScript_FieldPoison[];
+extern const u8 EventScript_DiffNuzlockeFallen[];
 extern const u8 EventScript_EggHatch[];
 extern const u8 EventScript_DoFallWarp[];
 

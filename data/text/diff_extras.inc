@@ -24,3 +24,12 @@ DiffExtras_Text_LeftoversDeclined::
 DiffExtras_Text_LeftoversNoSpace::
     .string "Your BAG is full.\n"
     .string "Make some room first.$"
+
+gDiffNuzlockeText_NoCatch::
+    .string "NUZLOCKE: you already had your\n"
+    .string "encounter in this area.\p"
+    .string "You can't catch this POKéMON.$"
+
+DiffNuzlocke_Text_Fallen::
+    .string "NUZLOCKE: {STR_VAR_1} of your POKéMON\n"
+    .string "fainted and are lost forever...$"

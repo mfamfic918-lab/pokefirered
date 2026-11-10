@@ -158,6 +158,14 @@ gOakSpeech_Text_AskPlayerGender::
     .string "Now tell me. Are you a boy?\n"
     .string "Or are you a girl?$"
 
+gOakSpeech_Text_AskNuzlocke::
+    .string "Do you want to play in\n"
+    .string "NUZLOCKE mode?\p"
+    .string "You may only catch the first\n"
+    .string "wild POKéMON of each area,\l"
+    .string "and fainted POKéMON are lost\l"
+    .string "forever.$"
+
 gPikachuIntro_Text_Page1::
     .string "In the world which you are about to\n"
     .string "enter, you will embark on a grand\n"

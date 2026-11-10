@@ -3996,6 +3996,9 @@ static void WaitForEvoSceneToFinish(void)
 
 static void ReturnFromBattleToOverworld(void)
 {
+#if DIFF_NUZLOCKE
+    DiffNuzlocke_AfterBattle();
+#endif
     if (!(gBattleTypeFlags & BATTLE_TYPE_LINK))
     {
         RandomlyGivePartyPokerus(gPlayerParty);

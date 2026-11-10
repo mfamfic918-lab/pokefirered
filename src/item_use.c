@@ -32,6 +32,7 @@
 #include "tm_case.h"
 #include "vs_seeker.h"
 #include "constants/sound.h"
+#include "difficulty.h"
 #include "constants/items.h"
 #include "constants/item_effects.h"
 #include "constants/maps.h"
@@ -734,8 +735,19 @@ void Task_ItemUse_CloseMessageBoxAndReturnToField_VsSeeker(u8 taskId)
     Task_ItemUse_CloseMessageBoxAndReturnToField(taskId);
 }
 
+#if DIFF_NUZLOCKE
+extern const u8 gDiffNuzlockeText_NoCatch[];
+#endif
+
 void BattleUseFunc_PokeBallEtc(u8 taskId)
 {
+#if DIFF_NUZLOCKE
+    if (!DiffNuzlocke_CanCatch())
+    {
+        DisplayItemMessageInBag(taskId, FONT_NORMAL, gDiffNuzlockeText_NoCatch, Task_ReturnToBagFromContextMenu);
+        return;
+    }
+#endif
     if (!IsPlayerPartyAndPokemonStorageFull())
     {
         RemoveBagItem(gSpecialVar_ItemId, 1);

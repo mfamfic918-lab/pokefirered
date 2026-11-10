@@ -153,6 +153,11 @@ void NewGameInitData(void)
 #if !DIFF_EXTRAS
     FlagSet(FLAG_DIFF_HIDE_EXTRA_NPCS);
 #endif
+#if DIFF_NUZLOCKE
+    if (gDiffNuzlockeChoice)
+        FlagSet(FLAG_DIFF_NUZLOCKE);
+    gDiffNuzlockeChoice = FALSE;
+#endif
 }
 
 static void ResetMiniGamesResults(void)

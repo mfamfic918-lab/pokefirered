@@ -1,4 +1,5 @@
 #include "global.h"
+#include "difficulty.h"
 #include "gflib.h"
 #include "decompress.h"
 #include "task.h"
@@ -71,6 +72,10 @@ static void Task_OakSpeech_ShowGenderOptions(u8);
 static void Task_OakSpeech_HandleGenderInput(u8);
 static void Task_OakSpeech_ClearGenderWindows(u8);
 static void Task_OakSpeech_LoadPlayerPic(u8);
+#if DIFF_NUZLOCKE
+static void Task_OakSpeech_AskNuzlocke(u8);
+static void Task_OakSpeech_HandleNuzlockeInput(u8);
+#endif
 static void Task_OakSpeech_YourNameWhatIsIt(u8);
 static void Task_OakSpeech_FadeOutForPlayerNamingScreen(u8);
 static void Task_OakSpeech_HandleRivalNameInput(u8);
@@ -1334,8 +1339,57 @@ static void Task_OakSpeech_ClearGenderWindows(u8 taskId)
     ClearDialogWindowAndFrame(tMenuWindowId, TRUE);
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 30, 20);
     CopyBgTilemapBufferToVram(0);
+#if DIFF_NUZLOCKE
+    gTasks[taskId].func = Task_OakSpeech_AskNuzlocke;
+#else
+    gTasks[taskId].func = Task_OakSpeech_LoadPlayerPic;
+#endif
+}
+
+#if DIFF_NUZLOCKE
+EWRAM_DATA bool8 gDiffNuzlockeChoice = FALSE;
+
+static void Task_OakSpeech_AskNuzlocke(u8 taskId)
+{
+    gDiffNuzlockeChoice = FALSE;
+    OakSpeechPrintMessage(gOakSpeech_Text_AskNuzlocke, sOakSpeechResources->textSpeed);
+    gTasks[taskId].tTimer = 20;
+    gTasks[taskId].func = Task_OakSpeech_HandleNuzlockeInput;
+}
+
+static void Task_OakSpeech_HandleNuzlockeInput(u8 taskId)
+{
+    s8 input;
+
+    if (IsTextPrinterActive(WIN_INTRO_TEXTBOX))
+        return;
+    if (gTasks[taskId].tTimer != 0)
+    {
+        gTasks[taskId].tTimer--;
+        if (gTasks[taskId].tTimer == 0)
+            CreateYesNoMenu(&sIntro_WindowTemplates[WIN_INTRO_YESNO], FONT_NORMAL, 0, 2, GetStdWindowBaseTileNum(), 14, 0);
+        return;
+    }
+    input = Menu_ProcessInputNoWrapClearOnChoose();
+    switch (input)
+    {
+    case 0: // YES
+        gDiffNuzlockeChoice = TRUE;
+        break;
+    case 1: // NO
+    case MENU_B_PRESSED:
+        gDiffNuzlockeChoice = FALSE;
+        break;
+    default:
+        return;
+    }
+    PlaySE(SE_SELECT);
+    ClearDialogWindowAndFrame(WIN_INTRO_TEXTBOX, TRUE);
+    FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 30, 20);
+    CopyBgTilemapBufferToVram(0);
     gTasks[taskId].func = Task_OakSpeech_LoadPlayerPic;
 }
+#endif
 
 static void Task_OakSpeech_LoadPlayerPic(u8 taskId)
 {

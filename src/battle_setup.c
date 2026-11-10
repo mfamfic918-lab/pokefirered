@@ -2,6 +2,8 @@
 #include "task.h"
 #include "help_system.h"
 #include "overworld.h"
+#include "difficulty.h"
+#include "pokemon_storage_system.h"
 #include "item.h"
 #include "sound.h"
 #include "pokemon.h"
@@ -29,6 +31,8 @@
 #include "constants/battle_setup.h"
 #include "constants/event_objects.h"
 #include "constants/items.h"
+#include "constants/region_map_sections.h"
+#include "constants/vars.h"
 #include "constants/maps.h"
 #include "constants/songs.h"
 #include "constants/pokemon.h"
@@ -234,6 +238,94 @@ static bool8 CheckSilphScopeInPokemonTower(u16 mapGroup, u16 mapNum)
         return FALSE;
 }
 
+#if DIFF_NUZLOCKE
+// Nuzlocke mode. One bit per Kanto map section (VAR_0x40EC.. 16 bits each) records
+// whether the first wild encounter of that area already happened.
+#define NUZ_AREA_COUNT (MAPSEC_COUNT - KANTO_MAPSEC_START)
+
+static u16 NuzAreaVar(u8 idx)
+{
+    u8 n = idx / 16;
+    return n < 5 ? VAR_0x40EC + n : VAR_0x40F2 + (n - 5);
+}
+
+bool8 DiffNuzlocke_IsActive(void)
+{
+    return FlagGet(FLAG_DIFF_NUZLOCKE);
+}
+
+// Called when a regular wild battle starts: the first one in each area may be caught.
+void DiffNuzlocke_OnWildBattleStart(void)
+{
+    u8 sec, idx;
+    u16 var, bits;
+
+    FlagClear(FLAG_DIFF_NUZLOCKE_NO_CATCH);
+    if (!FlagGet(FLAG_DIFF_NUZLOCKE))
+        return;
+    sec = GetCurrentRegionMapSectionId();
+    if (sec < KANTO_MAPSEC_START || sec - KANTO_MAPSEC_START >= NUZ_AREA_COUNT)
+        return;
+    idx = sec - KANTO_MAPSEC_START;
+    var = NuzAreaVar(idx);
+    bits = VarGet(var);
+    if (bits & (1 << (idx % 16)))
+    {
+        FlagSet(FLAG_DIFF_NUZLOCKE_NO_CATCH);
+    }
+    else
+    {
+        VarSet(var, bits | (1 << (idx % 16)));
+    }
+}
+
+bool8 DiffNuzlocke_CanCatch(void)
+{
+    return !(FlagGet(FLAG_DIFF_NUZLOCKE) && FlagGet(FLAG_DIFF_NUZLOCKE_NO_CATCH) && !(gBattleTypeFlags & BATTLE_TYPE_TRAINER));
+}
+
+// Fainted Pokemon are lost for good. If the whole party fainted the run is over:
+// Nuzlocke mode is switched off so that the game can go on normally.
+void DiffNuzlocke_AfterBattle(void)
+{
+    u8 i, lost = 0, alive = 0;
+
+    FlagClear(FLAG_DIFF_NUZLOCKE_NO_CATCH);
+    if (!FlagGet(FLAG_DIFF_NUZLOCKE) || (gBattleTypeFlags & BATTLE_TYPE_LINK) || (gBattleTypeFlags & BATTLE_TYPE_OLD_MAN_TUTORIAL))
+        return;
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES);
+        if (species != SPECIES_NONE && !GetMonData(&gPlayerParty[i], MON_DATA_SANITY_IS_EGG) && GetMonData(&gPlayerParty[i], MON_DATA_HP) != 0)
+            alive++;
+    }
+    if (alive == 0)
+    {
+        FlagClear(FLAG_DIFF_NUZLOCKE);
+        return;
+    }
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        u16 species = GetMonData(&gPlayerParty[i], MON_DATA_SPECIES);
+        if (species != SPECIES_NONE && !GetMonData(&gPlayerParty[i], MON_DATA_SANITY_IS_EGG) && GetMonData(&gPlayerParty[i], MON_DATA_HP) == 0)
+        {
+            u16 item = GetMonData(&gPlayerParty[i], MON_DATA_HELD_ITEM);
+            if (item != ITEM_NONE)
+                AddBagItem(item, 1);
+            ZeroMonData(&gPlayerParty[i]);
+            lost++;
+        }
+    }
+    if (lost != 0)
+    {
+        CompactPartySlots();
+        CalculatePlayerPartyCount();
+        VarSet(VAR_0x40F9, lost);
+        FlagSet(FLAG_DIFF_NUZLOCKE_DEATH_MSG);
+    }
+}
+#endif
+
 void StartWildBattle(void)
 {
     if (GetSafariZoneFlag())
@@ -246,6 +338,9 @@ void StartWildBattle(void)
 
 static void DoStandardWildBattle(void)
 {
+#if DIFF_NUZLOCKE
+    DiffNuzlocke_OnWildBattleStart();
+#endif
     LockPlayerFieldControls();
     FreezeObjectEvents();
     StopPlayerAvatar();
