@@ -52,6 +52,25 @@ ifeq ($(MODERN),1)
   BUILD_NAME := $(BUILD_NAME)_modern
 endif
 
+# Difficulty: vanilla (default), easy, medium or hard.
+# Each difficulty builds into its own directory and ROM, e.g. pokefirered_easy.gba.
+# The ids must match include/difficulty.h
+DIFFICULTY ?= vanilla
+ifeq ($(DIFFICULTY),vanilla)
+  DIFFICULTY_ID := 0
+else ifeq ($(DIFFICULTY),easy)
+  DIFFICULTY_ID := 1
+  BUILD_NAME    := $(BUILD_NAME)_easy
+else ifeq ($(DIFFICULTY),medium)
+  DIFFICULTY_ID := 2
+  BUILD_NAME    := $(BUILD_NAME)_medium
+else ifeq ($(DIFFICULTY),hard)
+  DIFFICULTY_ID := 3
+  BUILD_NAME    := $(BUILD_NAME)_hard
+else
+  $(error unknown difficulty $(DIFFICULTY) (use vanilla, easy, medium or hard))
+endif
+
 # Language
 ifeq ($(GAME_LANGUAGE),ENGLISH)
   GAME_CODE  := $(GAME_CODE)E

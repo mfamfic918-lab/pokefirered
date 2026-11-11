@@ -9,6 +9,7 @@
 #include "battle_anim.h"
 #include "item.h"
 #include "event_data.h"
+#include "difficulty.h"
 #include "util.h"
 #include "pokemon_storage_system.h"
 #include "battle_gfx_sfx_util.h"
@@ -2262,11 +2263,48 @@ static void GiveMonInitialMoveset(struct Pokemon *mon)
     GiveBoxMonInitialMoveset(&mon->box);
 }
 
+#if DIFF_EXTRAS
+// Random moves option: four different random moves, the first one always damaging.
+// The sequence depends only on the personality, so a Pokemon always gets the same ones.
+static void GiveBoxMonRandomMoveset(struct BoxPokemon *boxMon)
+{
+    u32 seed = GetBoxMonData(boxMon, MON_DATA_PERSONALITY, NULL) * 2654435761u + 12345;
+    u16 moves[MAX_MON_MOVES] = {0};
+    s32 i, j;
+
+    for (i = 0; i < MAX_MON_MOVES; i++)
+    {
+        u16 move;
+        bool8 duplicate;
+
+        do
+        {
+            seed = seed * 1103515245u + 12345;
+            move = 1 + ((seed >> 16) % (MOVES_COUNT - 1));
+            duplicate = FALSE;
+            for (j = 0; j < i; j++)
+                if (moves[j] == move)
+                    duplicate = TRUE;
+        } while (duplicate || move == MOVE_STRUGGLE || (i == 0 && gBattleMoves[move].power < 40));
+        moves[i] = move;
+        GiveMoveToBoxMon(boxMon, move);
+    }
+}
+#endif
+
 static void GiveBoxMonInitialMoveset(struct BoxPokemon *boxMon)
 {
     u16 species = GetBoxMonData(boxMon, MON_DATA_SPECIES, NULL);
     s32 level = GetLevelFromBoxMonExp(boxMon);
     s32 i;
+
+#if DIFF_EXTRAS
+    if (DiffOpt(DIFFOPT_RANDOM_MOVES))
+    {
+        GiveBoxMonRandomMoveset(boxMon);
+        return;
+    }
+#endif
 
     for (i = 0; gLevelUpLearnsets[species][i] != LEVEL_UP_END; i++)
     {
@@ -3790,6 +3828,13 @@ u8 GetMonsStateToDoubles(void)
 
 u8 GetAbilityBySpecies(u16 species, bool8 abilityNum)
 {
+#if DIFF_EXTRAS
+    if (DiffOpt(DIFFOPT_RANDOM_ABILITIES))
+    {
+        gLastUsedAbility = DiffOptions_RandomAbility(species, abilityNum);
+        return gLastUsedAbility;
+    }
+#endif
     if (abilityNum)
         gLastUsedAbility = gSpeciesInfo[species].abilities[1];
     else

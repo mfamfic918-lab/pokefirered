@@ -19,6 +19,9 @@
 #include "item_menu.h"
 #include "item_pc.h"
 #include "party_menu.h"
+#include "difficulty.h"
+#include "battle_main.h"
+#include "event_data.h"
 #include "constants/items.h"
 #include "constants/songs.h"
 #include "constants/field_weather.h"
@@ -75,6 +78,10 @@ static void Task_PlayerPcGiveMailToMon(u8 taskId);
 static void Task_WaitFadeAndGoToPartyMenu(u8 taskId);
 static void Task_Error_NoPokemon(u8 taskId);
 static void Task_PlayerPcExitMailSubmenu(u8 taskId);
+#if DIFF_EXTRAS
+static void Task_PlayerPcOptions(u8 taskId);
+static void Task_PlayerPcOptionsHandleInput(u8 taskId);
+#endif
 
 static const u8 *const sItemStorageActionDescriptionPtrs[] = {
     gText_TakeOutItemsFromThePC,
@@ -82,14 +89,28 @@ static const u8 *const sItemStorageActionDescriptionPtrs[] = {
     gText_GoBackToThePreviousMenu
 };
 
+#if DIFF_EXTRAS
+static const u8 sText_PcOptions[] = _("GAME OPTIONS");
+#endif
+
 static const struct MenuAction sMenuActions_TopMenu[] = {
     {gText_ItemStorage, Task_PlayerPcItemStorage},
     {gText_Mailbox, Task_PlayerPcMailbox},
-    {gText_TurnOff, Task_PlayerPcTurnOff}
+    {gText_TurnOff, Task_PlayerPcTurnOff},
+#if DIFF_EXTRAS
+    {sText_PcOptions, Task_PlayerPcOptions},
+#endif
 };
 
+#if DIFF_EXTRAS
+static const u8 sItemOrder_BedroomPC[] = { 0, 1, 3, 2 };
+static const u8 sItemOrder_PlayerPC[] = { 0, 1, 3, 2 };
+#define PC_TOP_MENU_COUNT 4
+#else
 static const u8 sItemOrder_BedroomPC[] = { 0, 1, 2 };
 static const u8 sItemOrder_PlayerPC[] = { 0, 1, 2 };
+#define PC_TOP_MENU_COUNT 3
+#endif
 
 static const struct MenuAction sMenuActions_ItemPc[] = {
     {gText_WithdrawItem2, Task_PlayerPcWithdrawItem},
@@ -155,7 +176,7 @@ void BedroomPC(void)
     gPlayerPcMenuManager.notInRoom = FALSE;
     BackupHelpContext();
     sItemOrder = sItemOrder_BedroomPC;
-    sTopMenuItemCount = 3;
+    sTopMenuItemCount = PC_TOP_MENU_COUNT;
     taskId = CreateTask(TaskDummy, 0);
     DisplayItemMessageOnField(taskId, FONT_NORMAL, gText_WhatWouldYouLikeToDo, Task_DrawPlayerPcTopMenu);
 }
@@ -167,7 +188,7 @@ void PlayerPC(void)
     gPlayerPcMenuManager.notInRoom = TRUE;
     BackupHelpContext();
     sItemOrder = sItemOrder_PlayerPC;
-    sTopMenuItemCount = 3;
+    sTopMenuItemCount = PC_TOP_MENU_COUNT;
     taskId = CreateTask(TaskDummy, 0);
     DisplayItemMessageOnField(taskId, FONT_NORMAL, gText_WhatWouldYouLikeToDo, Task_DrawPlayerPcTopMenu);
 }
@@ -217,6 +238,115 @@ static void Task_ReturnToTopMenu(u8 taskId)
     RestoreHelpContext();
     DisplayItemMessageOnField(taskId, FONT_NORMAL, gText_WhatWouldYouLikeToDo, Task_DrawPlayerPcTopMenu);
 }
+
+
+#if DIFF_EXTRAS
+// "GAME OPTIONS": shows the options chosen at the start of the game and lets the
+// player change the ones that can safely be changed later.
+#define OPT_ROWS 8
+
+static const u8 sText_On[] = _("ON");
+static const u8 sText_Off[] = _("OFF");
+static const u8 sText_OptShiny[] = _("Shiny exception");
+static const u8 sText_OptItems[] = _("Random items");
+static const u8 sText_OptMoves[] = _("Random moves");
+static const u8 sText_OptAbilities[] = _("Random abilities");
+static const u8 sText_OptTMVendor[] = _("Random TM vendor");
+static const u8 sText_OptNuzlocke[] = _("Nuzlocke");
+static const u8 sText_OptMono[] = _("Mono-type");
+static const u8 sText_OptDeath[] = _("Death mode");
+
+static const u8 *const sOptionLabels[OPT_ROWS] =
+{
+    sText_OptShiny, sText_OptItems, sText_OptMoves, sText_OptAbilities,
+    sText_OptTMVendor, sText_OptNuzlocke, sText_OptMono, sText_OptDeath,
+};
+
+static const u16 sOptionMasks[OPT_ROWS] =
+{
+    DIFFOPT_SHINY_CLAUSE, DIFFOPT_RANDOM_ITEMS, DIFFOPT_RANDOM_MOVES, DIFFOPT_RANDOM_ABILITIES,
+    DIFFOPT_TM_VENDOR, DIFFOPT_NUZLOCKE, 0, DIFFOPT_DEATH_MODE,
+};
+
+static const struct WindowTemplate sWindowTemplate_Options = {
+    .bg = 0,
+    .tilemapLeft = 1,
+    .tilemapTop = 1,
+    .width = 22,
+    .height = 17,
+    .paletteNum = 15,
+    .baseBlock = 0x008
+};
+
+static void PrintOptionValue(u8 windowId, u8 row)
+{
+    const u8 *value;
+
+    if (sOptionMasks[row] == 0)
+    {
+        u8 type = DiffOpt_MonoType();
+        value = type == 0xFF ? sText_Off : gTypeNames[type];
+    }
+    else
+        value = DiffOpt(sOptionMasks[row]) ? sText_On : sText_Off;
+    FillWindowPixelRect(windowId, PIXEL_FILL(1), 132, 2 + row * 16, 52, 14);
+    AddTextPrinterParameterized(windowId, FONT_NORMAL, value, 132, 2 + row * 16, 0, NULL);
+}
+
+static void Task_PlayerPcOptions(u8 taskId)
+{
+    s16 *data = gTasks[taskId].data;
+    u8 i;
+
+    ClearDialogWindowAndFrame(0, FALSE);
+    tWindowId = AddWindow(&sWindowTemplate_Options);
+    SetStdWindowBorderStyle(tWindowId, FALSE);
+    for (i = 0; i < OPT_ROWS; i++)
+    {
+        AddTextPrinterParameterized(tWindowId, FONT_NORMAL, sOptionLabels[i], GetMenuCursorDimensionByFont(FONT_NORMAL, 0), 2 + i * 16, 0, NULL);
+        PrintOptionValue(tWindowId, i);
+    }
+    Menu_InitCursor(tWindowId, FONT_NORMAL, 0, 2, 16, OPT_ROWS, 0);
+    CopyWindowToVram(tWindowId, COPYWIN_FULL);
+    gTasks[taskId].func = Task_PlayerPcOptionsHandleInput;
+}
+
+static void Task_PlayerPcOptionsHandleInput(u8 taskId)
+{
+    s16 *data = gTasks[taskId].data;
+    s8 input = Menu_ProcessInputNoWrapAround();
+
+    if (input == MENU_NOTHING_CHOSEN)
+        return;
+    if (input == MENU_B_PRESSED)
+    {
+        PlaySE(SE_SELECT);
+        ClearStdWindowAndFrameToTransparent(tWindowId, FALSE);
+        ClearWindowTilemap(tWindowId);
+        RemoveWindow(tWindowId);
+        ScheduleBgCopyTilemapToVram(0);
+        Task_ReturnToTopMenu(taskId);
+        return;
+    }
+    // Only the first five rows can be changed, and none of them in Death mode.
+    if (input < 5 && !DiffOpt(DIFFOPT_DEATH_MODE))
+    {
+        VarSet(VAR_0x40F4, VarGet(VAR_0x40F4) ^ sOptionMasks[input]);
+        if (input == 4) // TM vendor: shown or hidden the next time a Mart is entered
+        {
+            if (DiffOpt(DIFFOPT_TM_VENDOR))
+                FlagClear(FLAG_DIFF_HIDE_TM_VENDOR);
+            else
+                FlagSet(FLAG_DIFF_HIDE_TM_VENDOR);
+        }
+        PrintOptionValue(tWindowId, input);
+        CopyWindowToVram(tWindowId, COPYWIN_GFX);
+        PlaySE(SE_SELECT);
+    }
+    else
+        PlaySE(SE_BOO);
+}
+#endif // DIFF_EXTRAS
 
 static void Task_PlayerPcItemStorage(u8 taskId)
 {

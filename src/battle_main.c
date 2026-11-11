@@ -33,6 +33,7 @@
 #include "trig.h"
 #include "vs_seeker.h"
 #include "util.h"
+#include "difficulty.h"
 #include "constants/abilities.h"
 #include "constants/battle_move_effects.h"
 #include "constants/battle_setup.h"
@@ -42,6 +43,82 @@
 #include "constants/pokemon.h"
 #include "constants/songs.h"
 #include "constants/trainers.h"
+
+// Level of a trainer's Pokemon, adjusted for the selected difficulty
+#if DIFFICULTY != DIFFICULTY_VANILLA
+#define TRAINER_MON_LEVEL(lvl) (DiffOpt(DIFFOPT_DEATH_MODE) ? (lvl) + 4 : DIFF_SCALE_LEVEL(lvl, DIFF_TRAINER_LEVEL_PERCENT))
+#else
+#define TRAINER_MON_LEVEL(lvl) (lvl)
+#endif
+
+#if DIFF_RANDOM_NPC_TEAMS
+// Hard: trainers use different Pokemon than in the original game. The new
+// species is picked from a pseudo-random sequence that depends only on the
+// trainer and the party slot, so a trainer always has the same team, and has
+// a similar total of base stats as the Pokemon it replaces. Gym leaders, the
+// Elite Four and the Champion keep their own hand-made teams.
+static u16 GetSpeciesBaseStatTotal(u16 species)
+{
+    return gSpeciesInfo[species].baseHP + gSpeciesInfo[species].baseAttack
+         + gSpeciesInfo[species].baseDefense + gSpeciesInfo[species].baseSpeed
+         + gSpeciesInfo[species].baseSpAttack + gSpeciesInfo[species].baseSpDefense;
+}
+
+static bool8 TrainerKeepsOwnTeam(u16 trainerNum)
+{
+    switch (gTrainers[trainerNum].trainerClass)
+    {
+    case TRAINER_CLASS_LEADER:
+    case TRAINER_CLASS_ELITE_FOUR:
+    case TRAINER_CLASS_CHAMPION:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
+static u16 GetRandomizedTrainerSpecies(u16 trainerNum, u8 slot, u16 species)
+{
+    u32 hash;
+    u16 start, candidate, originalTotal, total, margin;
+    u8 pass;
+    s32 k;
+
+    if (TrainerKeepsOwnTeam(trainerNum))
+        return species;
+
+    hash = (trainerNum + 1) * 2654435761u;
+    hash ^= (slot + 1) * 40503u;
+    hash ^= hash >> 15;
+    hash *= 2246822519u;
+    hash ^= hash >> 13;
+
+    start = hash % (NUM_SPECIES - 1);
+    originalTotal = GetSpeciesBaseStatTotal(species);
+
+    // Start with Pokemon within 10% of the original total and widen the range if none is found
+    for (pass = 0; pass < 4; pass++)
+    {
+        margin = pass == 0 ? originalTotal / 10 : (pass == 1 ? originalTotal / 5 : (pass == 2 ? originalTotal / 2 : 1000));
+        for (k = 0; k < NUM_SPECIES - 1; k++)
+        {
+            candidate = ((start + k) % (NUM_SPECIES - 1)) + 1;
+            if (candidate == species || candidate == SPECIES_UNOWN)
+                continue;
+            total = GetSpeciesBaseStatTotal(candidate);
+            if (total == 0) // unused species slots
+                continue;
+            if (total + margin >= originalTotal && total <= originalTotal + margin)
+                return candidate;
+        }
+    }
+    return species;
+}
+
+#define TRAINER_MON_SPECIES(trainerNum, slot, species) (DiffOpt(DIFFOPT_DEATH_MODE) ? (species) : GetRandomizedTrainerSpecies(trainerNum, slot, species))
+#else
+#define TRAINER_MON_SPECIES(trainerNum, slot, species) (species)
+#endif
 
 static void SpriteCB_UnusedDebugSprite(struct Sprite *sprite);
 static void HandleAction_UseMove(void);
@@ -169,7 +246,6 @@ EWRAM_DATA u8 gAbsentBattlerFlags = 0;
 EWRAM_DATA u8 gCritMultiplier = 0;
 EWRAM_DATA u8 gMultiHitCounter = 0;
 EWRAM_DATA const u8 *gBattlescriptCurrInstr = NULL;
-EWRAM_DATA u32 gUnusedBattleMainVar = 0;
 EWRAM_DATA u8 gChosenActionByBattler[MAX_BATTLERS_COUNT] = {0};
 EWRAM_DATA const u8 *gSelectionBattleScripts[MAX_BATTLERS_COUNT] = {NULL};
 EWRAM_DATA u16 gLastPrintedMoves[MAX_BATTLERS_COUNT] = {0};
@@ -1574,7 +1650,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], TRAINER_MON_SPECIES(trainerNum, i, partyData[i].species), TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                 break;
             }
             case F_TRAINER_PARTY_CUSTOM_MOVESET:
@@ -1586,12 +1662,15 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], TRAINER_MON_SPECIES(trainerNum, i, partyData[i].species), TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
-                for (j = 0; j < MAX_MON_MOVES; j++)
+                if (TRAINER_MON_SPECIES(trainerNum, i, partyData[i].species) == partyData[i].species)
                 {
-                    SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
-                    SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
+                    for (j = 0; j < MAX_MON_MOVES; j++)
+                    {
+                        SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
+                        SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
+                    }
                 }
                 break;
             }
@@ -1604,7 +1683,7 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], TRAINER_MON_SPECIES(trainerNum, i, partyData[i].species), TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
 
                 SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
                 break;
@@ -1618,13 +1697,16 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 
                 personalityValue += nameHash << 8;
                 fixedIV = partyData[i].iv * MAX_PER_STAT_IVS / 255;
-                CreateMon(&party[i], partyData[i].species, partyData[i].lvl, fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
+                CreateMon(&party[i], TRAINER_MON_SPECIES(trainerNum, i, partyData[i].species), TRAINER_MON_LEVEL(partyData[i].lvl), fixedIV, TRUE, personalityValue, OT_ID_RANDOM_NO_SHINY, 0);
                 SetMonData(&party[i], MON_DATA_HELD_ITEM, &partyData[i].heldItem);
 
-                for (j = 0; j < MAX_MON_MOVES; j++)
+                if (TRAINER_MON_SPECIES(trainerNum, i, partyData[i].species) == partyData[i].species)
                 {
-                    SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
-                    SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
+                    for (j = 0; j < MAX_MON_MOVES; j++)
+                    {
+                        SetMonData(&party[i], MON_DATA_MOVE1 + j, &partyData[i].moves[j]);
+                        SetMonData(&party[i], MON_DATA_PP1 + j, &gBattleMoves[partyData[i].moves[j]].pp);
+                    }
                 }
                 break;
             }
@@ -1632,6 +1714,9 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
         }
 
         gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;
+#if DIFF_EXTRAS
+        DiffOptions_AdjustTrainerParty(party, gTrainers[trainerNum].partySize);
+#endif
     }
 
     return gTrainers[trainerNum].partySize;
@@ -3914,6 +3999,9 @@ static void WaitForEvoSceneToFinish(void)
 
 static void ReturnFromBattleToOverworld(void)
 {
+#if DIFF_NUZLOCKE
+    DiffNuzlocke_AfterBattle();
+#endif
     if (!(gBattleTypeFlags & BATTLE_TYPE_LINK))
     {
         RandomlyGivePartyPokerus(gPlayerParty);

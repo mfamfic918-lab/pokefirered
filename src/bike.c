@@ -8,6 +8,7 @@
 #include "overworld.h"
 #include "constants/map_types.h"
 #include "constants/songs.h"
+#include "difficulty.h"
 
 static u8 GetBikeTransitionId(u8 *, u16, u16);
 static void Bike_SetBikeStill(void);
@@ -252,7 +253,7 @@ bool8 RS_IsRunningDisallowed(u8 r0)
 
 bool32 IsRunningDisallowed(u8 metatileBehavior)
 {
-    if (!gMapHeader.allowRunning)
+    if (!DIFF_RUN_ANYWHERE && !gMapHeader.allowRunning)
         return TRUE;
     if (MetatileBehaviorForbidsBiking(metatileBehavior) != TRUE)
         return FALSE;

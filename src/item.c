@@ -7,6 +7,7 @@
 #include "load_save.h"
 #include "quest_log.h"
 #include "strings.h"
+#include "difficulty.h"
 #include "constants/hold_effects.h"
 #include "constants/items.h"
 #include "constants/maps.h"
@@ -678,3 +679,79 @@ u8 ItemId_GetSecondaryId(u16 itemId)
 {
     return gItems[SanitizeItemId(itemId)].secondaryId;
 }
+
+#if DIFFICULTY != DIFFICULTY_VANILLA
+// Called from the item pickup scripts (data/scripts/obtain_item.inc) to adjust
+// items found on the ground or hidden, according to the selected difficulty.
+
+#if DIFF_FOUND_HEAL_BONUS
+static bool8 IsHealingItem(u16 item)
+{
+    switch (item)
+    {
+    case ITEM_POTION:
+    case ITEM_SUPER_POTION:
+    case ITEM_HYPER_POTION:
+    case ITEM_ANTIDOTE:
+    case ITEM_PARALYZE_HEAL:
+    case ITEM_AWAKENING:
+    case ITEM_BURN_HEAL:
+    case ITEM_ICE_HEAL:
+    case ITEM_FULL_HEAL:
+    case ITEM_REVIVE:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+#endif
+
+#if DIFF_FOUND_HEAL_REPLACE
+static bool8 IsCheapHealingItem(u16 item)
+{
+    switch (item)
+    {
+    case ITEM_POTION:
+    case ITEM_ANTIDOTE:
+    case ITEM_PARALYZE_HEAL:
+    case ITEM_AWAKENING:
+    case ITEM_BURN_HEAL:
+    case ITEM_ICE_HEAL:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+#endif
+
+static void AdjustFoundItem(u16 *item, u16 *quantity)
+{
+    u16 randomItem = DiffOptions_RandomFoundItem(*item);
+    if (randomItem != *item)
+    {
+        *item = randomItem;
+        *quantity = 1;
+        return;
+    }
+#if DIFF_FOUND_HEAL_BONUS
+    if (IsHealingItem(*item) && *quantity < 99)
+        (*quantity)++;
+#endif
+#if DIFF_FOUND_HEAL_REPLACE
+    if (IsCheapHealingItem(*item))
+        *item = ITEM_POKE_BALL;
+#endif
+}
+
+// Item balls: item in VAR_0x8000, quantity in VAR_0x8001
+void AdjustFoundItem_ItemBall(void)
+{
+    AdjustFoundItem(&gSpecialVar_0x8000, &gSpecialVar_0x8001);
+}
+
+// Hidden items: item in VAR_0x8005, quantity in VAR_0x8006
+void AdjustFoundItem_Hidden(void)
+{
+    AdjustFoundItem(&gSpecialVar_0x8005, &gSpecialVar_0x8006);
+}
+#endif // DIFFICULTY != DIFFICULTY_VANILLA

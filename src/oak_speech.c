@@ -1,4 +1,7 @@
 #include "global.h"
+#include "difficulty.h"
+#include "battle_main.h"
+#include "string_util.h"
 #include "gflib.h"
 #include "decompress.h"
 #include "task.h"
@@ -71,6 +74,11 @@ static void Task_OakSpeech_ShowGenderOptions(u8);
 static void Task_OakSpeech_HandleGenderInput(u8);
 static void Task_OakSpeech_ClearGenderWindows(u8);
 static void Task_OakSpeech_LoadPlayerPic(u8);
+#if DIFF_NUZLOCKE
+static void Task_OakSpeech_AskOption(u8);
+static void Task_OakSpeech_HandleOptionInput(u8);
+static void Task_OakSpeech_HandleMonoType(u8);
+#endif
 static void Task_OakSpeech_YourNameWhatIsIt(u8);
 static void Task_OakSpeech_FadeOutForPlayerNamingScreen(u8);
 static void Task_OakSpeech_HandleRivalNameInput(u8);
@@ -844,7 +852,7 @@ static void Task_ControlsGuide_HandleInput(u8 taskId)
         {
             if (JOY_NEW(A_BUTTON))
             {
-                gTasks[taskId].tDelta = 1;
+                gTasks[taskId].data[15] = 1;
 
                 if (sOakSpeechResources->currentPage < CONTROLS_GUIDE_PAGE_3)
                     BeginNormalPaletteFade(PALETTES_OBJECTS | 0xDFFF, -1, 0, 16, GetTextWindowPalette(2)[15]);
@@ -854,7 +862,7 @@ static void Task_ControlsGuide_HandleInput(u8 taskId)
                 if (sOakSpeechResources->currentPage == CONTROLS_GUIDE_PAGE_1)
                     return;
 
-                gTasks[taskId].tDelta = -1;
+                gTasks[taskId].data[15] = -1;
                 BeginNormalPaletteFade(PALETTES_OBJECTS | 0xDFFF, -1, 0, 16, GetTextWindowPalette(2)[15]);
             }
 
@@ -881,7 +889,7 @@ static void Task_ControlsGuide_ChangePage(u8 taskId)
             numWindows = NUM_CONTROLS_GUIDE_PAGES_2_3_WINDOWS;
             break;
         }
-        sOakSpeechResources->currentPage += gTasks[taskId].tDelta;
+        sOakSpeechResources->currentPage += gTasks[taskId].data[15];
         if (sOakSpeechResources->currentPage < NUM_CONTROLS_GUIDE_PAGES)
         {
             for (i = 0; i < numWindows; i++)
@@ -1334,8 +1342,196 @@ static void Task_OakSpeech_ClearGenderWindows(u8 taskId)
     ClearDialogWindowAndFrame(tMenuWindowId, TRUE);
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 30, 20);
     CopyBgTilemapBufferToVram(0);
+#if DIFF_NUZLOCKE
+    gTasks[taskId].data[15] = -1;
+    gDiffOptionsChoice = 0;
+    gTasks[taskId].func = Task_OakSpeech_AskOption;
+#else
     gTasks[taskId].func = Task_OakSpeech_LoadPlayerPic;
+#endif
 }
+
+#if DIFF_NUZLOCKE
+// Option questions asked after choosing the gender (data[15] = current question)
+enum
+{
+    OPT_DEATH,
+    OPT_NUZLOCKE,
+    OPT_SHINY,
+    OPT_ITEMS,
+    OPT_STARTERS,
+    OPT_MONO,
+    OPT_MONO_TYPE,
+    OPT_MOVES,
+    OPT_ABILITIES,
+    OPT_TMVENDOR,
+    OPT_DONE,
+};
+
+static const u8 *const sOptionTexts[] =
+{
+    [OPT_DEATH]     = gOakSpeech_Text_AskDeathMode,
+    [OPT_NUZLOCKE]  = gOakSpeech_Text_AskNuzlocke,
+    [OPT_SHINY]     = gOakSpeech_Text_AskShiny,
+    [OPT_ITEMS]     = gOakSpeech_Text_AskRandomItems,
+    [OPT_STARTERS]  = gOakSpeech_Text_AskRandomStarters,
+    [OPT_MONO]      = gOakSpeech_Text_AskMonoType,
+    [OPT_MONO_TYPE] = gOakSpeech_Text_AskMonoType,
+    [OPT_MOVES]     = gOakSpeech_Text_AskRandomMoves,
+    [OPT_ABILITIES] = gOakSpeech_Text_AskRandomAbilities,
+    [OPT_TMVENDOR]  = gOakSpeech_Text_AskTMVendor,
+};
+
+static const u8 sOptionTypes[] = {
+    TYPE_NORMAL, TYPE_FIGHTING, TYPE_FLYING, TYPE_POISON, TYPE_GROUND, TYPE_ROCK, TYPE_BUG, TYPE_GHOST, TYPE_STEEL,
+    TYPE_FIRE, TYPE_WATER, TYPE_GRASS, TYPE_ELECTRIC, TYPE_PSYCHIC, TYPE_ICE, TYPE_DRAGON, TYPE_DARK,
+};
+
+static void PrintMonoTypePicker(u8 typeIdx)
+{
+    StringCopy(gStringVar4, gOakSpeech_Text_ChooseType);
+    StringAppend(gStringVar4, gTypeNames[sOptionTypes[typeIdx]]);
+    StringAppend(gStringVar4, gOakSpeech_Text_ChooseTypeHint);
+    OakSpeechPrintMessage(gStringVar4, 0);
+}
+
+static void Task_OakSpeech_AskOption(u8 taskId)
+{
+    s16 step = gTasks[taskId].data[15];
+
+    if (step < 0)
+    {
+        step = DIFFICULTY == DIFFICULTY_HARD ? OPT_DEATH : OPT_NUZLOCKE;
+        gTasks[taskId].data[15] = step;
+    }
+    if (step == OPT_DONE)
+    {
+        ClearDialogWindowAndFrame(WIN_INTRO_TEXTBOX, TRUE);
+        FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, 30, 20);
+        CopyBgTilemapBufferToVram(0);
+        gTasks[taskId].func = Task_OakSpeech_LoadPlayerPic;
+        return;
+    }
+    if (step == OPT_MONO_TYPE)
+    {
+        gTasks[taskId].tTimer = 0; // selected type index
+        PrintMonoTypePicker(0);
+        gTasks[taskId].func = Task_OakSpeech_HandleMonoType;
+        return;
+    }
+    OakSpeechPrintMessage(sOptionTexts[step], sOakSpeechResources->textSpeed);
+    gTasks[taskId].tTimer = 20;
+    gTasks[taskId].func = Task_OakSpeech_HandleOptionInput;
+}
+
+static void Task_OakSpeech_HandleMonoType(u8 taskId)
+{
+    s16 idx = gTasks[taskId].tTimer;
+
+    if (JOY_NEW(DPAD_RIGHT))
+        idx = (idx + 1) % NELEMS(sOptionTypes);
+    else if (JOY_NEW(DPAD_LEFT))
+        idx = (idx + NELEMS(sOptionTypes) - 1) % NELEMS(sOptionTypes);
+    else if (JOY_NEW(A_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        gDiffOptionsChoice |= (sOptionTypes[idx] + 1) << DIFFOPT_MONO_SHIFT;
+        gTasks[taskId].data[15] = OPT_MOVES;
+        gTasks[taskId].func = Task_OakSpeech_AskOption;
+        return;
+    }
+    else if (JOY_NEW(B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        gTasks[taskId].data[15] = OPT_MOVES;
+        gTasks[taskId].func = Task_OakSpeech_AskOption;
+        return;
+    }
+    else
+        return;
+    gTasks[taskId].tTimer = idx;
+    PlaySE(SE_SELECT);
+    PrintMonoTypePicker(idx);
+}
+
+static void Task_OakSpeech_HandleOptionInput(u8 taskId)
+{
+    s8 input;
+    s16 step = gTasks[taskId].data[15];
+    bool8 yes;
+
+    if (IsTextPrinterActive(WIN_INTRO_TEXTBOX))
+        return;
+    if (gTasks[taskId].tTimer != 0)
+    {
+        gTasks[taskId].tTimer--;
+        if (gTasks[taskId].tTimer == 0)
+            CreateYesNoMenu(&sIntro_WindowTemplates[WIN_INTRO_YESNO], FONT_NORMAL, 0, 2, GetStdWindowBaseTileNum(), 14, 0);
+        return;
+    }
+    input = Menu_ProcessInputNoWrapClearOnChoose();
+    if (input == 0)
+        yes = TRUE;
+    else if (input == 1 || input == MENU_B_PRESSED)
+        yes = FALSE;
+    else
+        return;
+    PlaySE(SE_SELECT);
+
+    switch (step)
+    {
+    case OPT_DEATH:
+        if (yes)
+        {
+            gDiffOptionsChoice = DIFFOPT_DEATH_MODE | DIFFOPT_NUZLOCKE;
+            step = OPT_DONE;
+        }
+        else
+            step = OPT_NUZLOCKE;
+        break;
+    case OPT_NUZLOCKE:
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_NUZLOCKE;
+        step = yes ? OPT_SHINY : OPT_ITEMS;
+        break;
+    case OPT_SHINY:
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_SHINY_CLAUSE;
+        step = OPT_ITEMS;
+        break;
+    case OPT_ITEMS:
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_RANDOM_ITEMS;
+        step = OPT_STARTERS;
+        break;
+    case OPT_STARTERS:
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_RANDOM_STARTERS;
+        step = yes ? OPT_MOVES : OPT_MONO;
+        break;
+    case OPT_MONO:
+        step = yes ? OPT_MONO_TYPE : OPT_MOVES;
+        break;
+    case OPT_MOVES:
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_RANDOM_MOVES;
+        step = OPT_ABILITIES;
+        break;
+    case OPT_ABILITIES:
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_RANDOM_ABILITIES;
+        step = OPT_TMVENDOR;
+        break;
+    default: // OPT_TMVENDOR
+        if (yes)
+            gDiffOptionsChoice |= DIFFOPT_TM_VENDOR;
+        step = OPT_DONE;
+        break;
+    }
+    gTasks[taskId].data[15] = step;
+    gTasks[taskId].func = Task_OakSpeech_AskOption;
+}
+#endif
 
 static void Task_OakSpeech_LoadPlayerPic(u8 taskId)
 {

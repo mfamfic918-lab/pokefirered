@@ -1236,9 +1236,30 @@ PalletTown_ProfessorOaksLab_EventScript_CharmanderBall::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_LastPokeBall::
+	.if DIFFICULTY != 0
+	@ The ball that is left after the rival took his can also be taken by the player
+	showmonpic PLAYER_STARTER_SPECIES, 10, 3
+	msgbox PalletTown_ProfessorOaksLab_Text_TakeTheLastMonToo, MSGBOX_YESNO
+	hidemonpic
+	goto_if_eq VAR_RESULT, NO, PalletTown_ProfessorOaksLab_EventScript_DeclinedLastMon
+	removeobject VAR_LAST_TALKED
+	givemon PLAYER_STARTER_SPECIES, 5
+	bufferspeciesname STR_VAR_1, PLAYER_STARTER_SPECIES
+	message PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak
+	waitmessage
+	playfanfare MUS_OBTAIN_KEY_ITEM
+	waitfanfare
+	release
+	end
+
+PalletTown_ProfessorOaksLab_EventScript_DeclinedLastMon::
+	release
+	end
+	.else
 	msgbox PalletTown_ProfessorOaksLab_Text_OaksLastMon
 	release
 	end
+	.endif
 
 PalletTown_ProfessorOaksLab_EventScript_Aide1::
 	lock

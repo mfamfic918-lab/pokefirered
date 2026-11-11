@@ -8,8 +8,11 @@
 #include "party_menu.h"
 #include "pokedex.h"
 #include "script_pokemon_util.h"
+#include "difficulty.h"
+#include "difficulty.h"
 #include "constants/items.h"
 #include "constants/pokemon.h"
+#include "constants/maps.h"
 
 static void CB2_ReturnFromChooseHalfParty(void);
 static void CB2_ReturnFromChooseBattleTowerParty(void);
@@ -52,6 +55,9 @@ u8 ScriptGiveMon(u16 species, u8 level, u16 item, u32 unused1, u32 unused2, u8 u
     u8 heldItem[2];
     struct Pokemon *mon = AllocZeroed(sizeof(struct Pokemon));
 
+#if DIFF_EXTRAS
+    species = DiffOptions_RemapStarter(species, level);
+#endif
     CreateMon(mon, species, level, 32, 0, 0, OT_ID_PLAYER_ID, 0);
     heldItem[0] = item;
     heldItem[1] = item >> 8;
@@ -129,6 +135,10 @@ void CreateScriptedWildMon(u16 species, u8 level, u16 item)
 {
     u8 heldItem[2];
 
+#if DIFFICULTY != DIFFICULTY_VANILLA
+    // Scripted wild battles (Snorlax, the legendary birds, Mewtwo...) follow the wild level setting
+    level = DIFF_SCALE_LEVEL(level, DIFF_WILD_LEVEL_PERCENT);
+#endif
     ZeroEnemyPartyMons();
     CreateMon(&gEnemyParty[0], species, level, 32, 0, 0, OT_ID_PLAYER_ID, 0);
     if (item)

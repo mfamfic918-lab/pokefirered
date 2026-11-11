@@ -1532,4 +1532,15 @@
 // FLAG_SPECIAL_FLAG_0x4002 - 0x407F also exist and are unused
 #define SPECIAL_FLAGS_END             (SPECIAL_FLAGS_START + 0x7F)
 
+
+// Flags used by the difficulty extras (see include/difficulty.h). They reuse unused flags.
+#define FLAG_DIFF_HIDE_EXTRA_NPCS   FLAG_UNUSED_0x4A7 // set only in the original game, hides the added NPCs
+#define FLAG_DIFF_CODE_1_USED       FLAG_UNUSED_0x4A8
+#define FLAG_DIFF_CODE_2_USED       FLAG_UNUSED_0x4A9
+#define FLAG_DIFF_CODE_3_USED       FLAG_UNUSED_0x4AA
+#define FLAG_DIFF_HIDE_TM_VENDOR    FLAG_UNUSED_0x4AE // hides the random-TM vendor when that option is off
+#define FLAG_DIFF_NUZLOCKE          FLAG_UNUSED_0x4AB // Nuzlocke mode is active
+#define FLAG_DIFF_NUZLOCKE_NO_CATCH FLAG_UNUSED_0x4AC // current wild battle: area already used, balls blocked
+#define FLAG_DIFF_NUZLOCKE_DEATH_MSG FLAG_UNUSED_0x4AD // show the "fainted Pokemon are lost" message in the field
+
 #endif // GUARD_CONSTANTS_FLAGS_H

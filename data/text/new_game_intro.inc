@@ -158,6 +158,50 @@ gOakSpeech_Text_AskPlayerGender::
     .string "Now tell me. Are you a boy?\n"
     .string "Or are you a girl?$"
 
+gOakSpeech_Text_AskDeathMode::
+    .string "DEATH MODE?\n"
+    .string "NUZLOCKE rules, no randomizer,\l"
+    .string "all trainers 4 levels higher\l"
+    .string "and with counter moves.$"
+
+gOakSpeech_Text_AskNuzlocke::
+    .string "NUZLOCKE mode?\n"
+    .string "Only the first wild POKéMON of\l"
+    .string "each area can be caught and\l"
+    .string "fainted POKéMON are lost.$"
+
+gOakSpeech_Text_AskShiny::
+    .string "NUZLOCKE exception:\n"
+    .string "shiny POKéMON can always be\l"
+    .string "caught?$"
+
+gOakSpeech_Text_AskRandomItems::
+    .string "Random items on the ground?$"
+
+gOakSpeech_Text_AskRandomStarters::
+    .string "Random starter POKéMON?$"
+
+gOakSpeech_Text_AskMonoType::
+    .string "Mono-type mode?\n"
+    .string "The starters will be POKéMON\l"
+    .string "of the type you choose.$"
+
+gOakSpeech_Text_ChooseType::
+    .string "Choose the type:\n$"
+
+gOakSpeech_Text_ChooseTypeHint::
+    .string "\n{LEFT_ARROW}{RIGHT_ARROW} change   A: confirm$"
+
+gOakSpeech_Text_AskRandomMoves::
+    .string "Random moves for POKéMON?$"
+
+gOakSpeech_Text_AskRandomAbilities::
+    .string "Random abilities?$"
+
+gOakSpeech_Text_AskTMVendor::
+    .string "Random TM vendor in the\n"
+    .string "POKéMON MARTs?$"
+
 gPikachuIntro_Text_Page1::
     .string "In the world which you are about to\n"
     .string "enter, you will embark on a grand\n"

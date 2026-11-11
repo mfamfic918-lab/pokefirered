@@ -11,6 +11,8 @@
 #include "list_menu.h"
 #include "item.h"
 #include "item_menu.h"
+#include "overworld.h"
+#include "event_data.h"
 #include "link.h"
 #include "money.h"
 #include "shop.h"
@@ -150,6 +152,7 @@ static void Action_Exit(u8 taskId);
 static void Task_SelectedTMHM_GiveParty(u8 taskId);
 static void Task_SelectedTMHM_GivePC(u8 taskId);
 static void Task_SelectedTMHM_Sell(u8 taskId);
+static void Task_SelectedTMHM_GiveNPC(u8 taskId);
 static void Task_AskConfirmSaleWithAmount(u8 taskId);
 static void Task_PlaceYesNoBox(u8 taskId);
 static void Task_SaleOfTMsCanceled(u8 taskId);
@@ -215,7 +218,8 @@ static void (*const sSelectTMActionTasks[])(u8 taskId) = {
     [TMCASE_FIELD]      = Task_SelectedTMHM_Field,
     [TMCASE_GIVE_PARTY] = Task_SelectedTMHM_GiveParty,
     [TMCASE_SELL]       = Task_SelectedTMHM_Sell,
-    [TMCASE_GIVE_PC]    = Task_SelectedTMHM_GivePC
+    [TMCASE_GIVE_PC]    = Task_SelectedTMHM_GivePC,
+    [TMCASE_GIVE_NPC]   = Task_SelectedTMHM_GiveNPC
 };
 
 static const struct MenuAction sMenuActions[] = {
@@ -1150,6 +1154,28 @@ static void Task_SelectedTMHM_GivePC(u8 taskId)
     else
     {
         // Can't hold "important" items (e.g. key items)
+        PrintError_ItemCantBeHeld(taskId);
+    }
+}
+
+// Picks a TM for an NPC. The chosen item is left in gSpecialVar_ItemId (ITEM_NONE if the
+// player backs out) and the script that opened the TM case continues afterwards.
+void OpenTMCaseForNPC(void)
+{
+    gSpecialVar_ItemId = ITEM_NONE;
+    InitTMCase(TMCASE_GIVE_NPC, CB2_ReturnToFieldContinueScriptPlayMapMusic, TRUE);
+}
+
+static void Task_SelectedTMHM_GiveNPC(u8 taskId)
+{
+    if (!IS_HM(gSpecialVar_ItemId))
+    {
+        sTMCaseDynamicResources->nextScreenCallback = CB2_ReturnToFieldContinueScriptPlayMapMusic;
+        Task_BeginFadeOutFromTMCase(taskId);
+    }
+    else
+    {
+        // HMs can't be given away
         PrintError_ItemCantBeHeld(taskId);
     }
 }

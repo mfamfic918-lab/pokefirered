@@ -107,6 +107,9 @@ Std_FindItem::
 	lock
 	faceplayer
 	waitse
+	.if DIFFICULTY != 0
+	callnative AdjustFoundItem_ItemBall
+	.endif
 	copyvar VAR_0x8004, VAR_0x8000
 	copyvar VAR_0x8005, VAR_0x8001
 	checkitemspace VAR_0x8000, VAR_0x8001
@@ -156,6 +159,9 @@ EventScript_HiddenItemScript::
 	end
 
 EventScript_TryPickUpHiddenItem::
+	.if DIFFICULTY != 0
+	callnative AdjustFoundItem_Hidden
+	.endif
 	additem VAR_0x8005, VAR_0x8006
 	copyvar VAR_0x8007, VAR_RESULT
 	bufferitemname STR_VAR_2, VAR_0x8005

@@ -26,6 +26,7 @@
 #include "constants/metatile_behaviors.h"
 #include "constants/moves.h"
 #include "constants/trainer_types.h"
+#include "difficulty.h"
 
 static EWRAM_DATA struct ObjectEvent * sPlayerObjectPtr = NULL;
 static EWRAM_DATA u8 sTeleportSavedFacingDirection = DIR_NONE;
@@ -513,7 +514,7 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
         return;
     }
 
-    if ((heldKeys & B_BUTTON) && FlagGet(FLAG_SYS_B_DASH)
+    if ((heldKeys & B_BUTTON) && (DIFF_RUN_ANYWHERE || FlagGet(FLAG_SYS_B_DASH))
         && !IsRunningDisallowed(gObjectEvents[gPlayerAvatar.objectEventId].currentMetatileBehavior))
     {
         if (PlayerIsMovingOnRockStairs(direction))

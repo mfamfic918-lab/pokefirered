@@ -25,10 +25,23 @@
 #include "money.h"
 #include "quest_log.h"
 #include "script.h"
+#include "difficulty.h"
+#include "random.h"
 #include "constants/songs.h"
 #include "constants/items.h"
 #include "constants/game_stat.h"
 #include "constants/field_weather.h"
+
+#define MAX_EXTENDED_MART_ITEMS 23 // the longest Mart list has 10 items, plus 8 healing items
+
+// Price of an item bought in a Mart, adjusted for the selected difficulty.
+// Selling prices are not affected.
+#if DIFFICULTY != DIFFICULTY_VANILLA && DIFF_SHOP_PRICE_PERCENT != 100
+static u16 GetShopBuyPrice(u16 item);
+#define SHOP_BUY_PRICE(item) GetShopBuyPrice(item)
+#else
+#define SHOP_BUY_PRICE(item) ItemId_GetPrice(item)
+#endif
 
 #define tItemCount data[1]
 #define tItemId data[5]
@@ -71,6 +84,9 @@ struct ShopData
 
 static EWRAM_DATA s16 sViewportObjectEvents[OBJECT_EVENTS_COUNT][4] = {0};
 static EWRAM_DATA struct ShopData sShopData = {0};
+#if DIFF_EXTRAS
+static EWRAM_DATA u16 sExtendedMartItems[MAX_EXTENDED_MART_ITEMS + 1] = {0};
+#endif
 static EWRAM_DATA u8 sShopMenuWindowId = 0;
 EWRAM_DATA u16 (*gShopTilemapBuffer1)[0x400] = {0};
 EWRAM_DATA u16 (*gShopTilemapBuffer2)[0x400] = {0};
@@ -603,7 +619,7 @@ static void BuyMenuPrintPriceInList(u8 windowId, u32 item, u8 y)
 
     if (item != INDEX_CANCEL)
     {
-        ConvertIntToDecimalStringN(gStringVar1, ItemId_GetPrice(item), 0, 4);
+        ConvertIntToDecimalStringN(gStringVar1, SHOP_BUY_PRICE(item), 0, 4);
         x = 4 - StringLength(gStringVar1);
         loc = gStringVar4;
         while (x-- != 0)
@@ -891,7 +907,7 @@ static void Task_BuyMenu(u8 taskId)
             BuyMenuRemoveScrollIndicatorArrows();
             BuyMenuPrintCursor(tListTaskId, 2);
             RecolorItemDescriptionBox(1);
-            sShopData.itemPrice = ItemId_GetPrice(itemId);
+            sShopData.itemPrice = SHOP_BUY_PRICE(itemId);
             if (!IsEnoughMoney(&gSaveBlock1Ptr->money, sShopData.itemPrice))
             {
                 BuyMenuDisplayMessage(taskId, gText_YouDontHaveMoney, BuyMenuReturnToItemList);
@@ -920,7 +936,7 @@ static void Task_BuyHowManyDialogueInit(u8 taskId)
     BuyMenuQuantityBoxNormalBorder(3, 0);
     BuyMenuPrintItemQuantityAndPrice(taskId);
     ScheduleBgCopyTilemapToVram(0);
-    maxQuantity = GetMoney(&gSaveBlock1Ptr->money) / ItemId_GetPrice(tItemId);
+    maxQuantity = GetMoney(&gSaveBlock1Ptr->money) / SHOP_BUY_PRICE(tItemId);
     if (maxQuantity > 99)
         sShopData.maxQuantity = 99;
     else
@@ -938,7 +954,7 @@ static void Task_BuyHowManyDialogueHandleInput(u8 taskId)
 
     if (AdjustQuantityAccordingToDPadInput(&tItemCount, sShopData.maxQuantity) == TRUE)
     {
-        sShopData.itemPrice = ItemId_GetPrice(tItemId) * tItemCount;
+        sShopData.itemPrice = SHOP_BUY_PRICE(tItemId) * tItemCount;
         BuyMenuPrintItemQuantityAndPrice(taskId);
     }
     else
@@ -1118,8 +1134,99 @@ static void RecordTransactionForQuestLog(void)
         SetQuestLogEvent(eventId + QL_EVENT_USED_POKEMART, (const u16 *)&sHistory[1]);
 }
 
+#if DIFFICULTY != DIFFICULTY_VANILLA && DIFF_SHOP_PRICE_PERCENT != 100
+static u16 GetShopBuyPrice(u16 item)
+{
+    u32 price = ItemId_GetPrice(item) * DIFF_SHOP_PRICE_PERCENT / 100;
+
+    // The price column of the buy menu only has room for 4 digits
+    if (price > 9999)
+        price = 9999;
+    return price;
+}
+#endif
+
+#if DIFF_EXTRA_MART_HEALING
+// Healing items added to regular Marts. A Mart counts as regular when it
+// already sells Poke Balls, so Dept. Store TM counters, vending machines and
+// similar shops are left alone.
+static const u16 sExtraMartHealingItems[] = {
+    ITEM_POTION,
+    ITEM_SUPER_POTION,
+    ITEM_ANTIDOTE,
+    ITEM_PARALYZE_HEAL,
+    ITEM_AWAKENING,
+    ITEM_BURN_HEAL,
+    ITEM_ICE_HEAL,
+    ITEM_REVIVE,
+};
+
+static const u16 *AddExtraMartHealingItems(const u16 *items)
+{
+    u16 count = 0;
+    u16 i, j;
+    bool8 isRegularMart = FALSE;
+
+    while (items[count] != ITEM_NONE && count < MAX_EXTENDED_MART_ITEMS - ARRAY_COUNT(sExtraMartHealingItems))
+    {
+        if (items[count] == ITEM_POKE_BALL)
+            isRegularMart = TRUE;
+        sExtendedMartItems[count] = items[count];
+        count++;
+    }
+    if (!isRegularMart)
+        return items;
+
+    for (i = 0; i < ARRAY_COUNT(sExtraMartHealingItems); i++)
+    {
+        for (j = 0; j < count; j++)
+        {
+            if (sExtendedMartItems[j] == sExtraMartHealingItems[i])
+                break;
+        }
+        if (j == count)
+        {
+            sExtendedMartItems[count] = sExtraMartHealingItems[i];
+            count++;
+        }
+    }
+    sExtendedMartItems[count] = ITEM_NONE;
+    return sExtendedMartItems;
+}
+#endif
+
+#if DIFF_EXTRAS
+#define RANDOM_TM_MART_SIZE 8
+
+// Called by the TM vendor NPC (data/scripts/diff_extras.inc): opens a Mart that
+// sells random TMs. The stock is different every time.
+void ShowRandomTMMart(void)
+{
+    u8 count = 0;
+    u8 i;
+    u16 item;
+
+    while (count < RANDOM_TM_MART_SIZE)
+    {
+        item = ITEM_TM01 + (Random() % (ITEM_TM50 - ITEM_TM01 + 1));
+        for (i = 0; i < count; i++)
+        {
+            if (sExtendedMartItems[i] == item)
+                break;
+        }
+        if (i == count)
+            sExtendedMartItems[count++] = item;
+    }
+    sExtendedMartItems[count] = ITEM_NONE;
+    CreatePokemartMenu(sExtendedMartItems);
+}
+#endif
+
 void CreatePokemartMenu(const u16 *itemsForSale)
 {
+#if DIFF_EXTRA_MART_HEALING
+    itemsForSale = AddExtraMartHealingItems(itemsForSale);
+#endif
     SetShopItemsForSale(itemsForSale);
     CreateShopMenu(MART_TYPE_REGULAR);
     SetShopMenuCallback(ScriptContext_Enable);
