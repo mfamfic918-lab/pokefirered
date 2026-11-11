@@ -20,6 +20,10 @@
 #include "constants/sound.h"
 #include "pokedex_area_markers.h"
 #include "field_specials.h"
+#include "difficulty.h"
+#include "item.h"
+#include "string_util.h"
+#include "battle_main.h"
 
 #define TAG_AREA_MARKERS 2001
 
@@ -121,6 +125,9 @@ static void DexScreen_UpdateCategoryPageCursorObject(u8 taskId, u8 cursorPos, u8
 static bool8 DexScreen_FlipCategoryPageInDirection(u8 direction);
 void DexScreen_DexPageZoomEffectFrame(u8 bg, u8 scale);
 static u8 DexScreen_DrawMonDexPage(bool8 justRegistered);
+#if DIFF_EXTRAS
+static void DexScreen_CycleInfoMode(void);
+#endif
 u8 RemoveDexPageWindows(void);
 u8 DexScreen_DrawMonAreaPage(void);
 static bool8 DexScreen_IsPageUnlocked(u8 category, u8 pageNum);
@@ -1967,6 +1974,12 @@ static void Task_DexScreen_ShowMonPage(u8 taskId)
             BeginNormalPaletteFade(~0x8000, 0, 0, 16, RGB_WHITEALPHA);
             sPokedexScreenData->state = 6;
         }
+#if DIFF_EXTRAS
+        else if (JOY_NEW(SELECT_BUTTON))
+        {
+            DexScreen_CycleInfoMode();
+        }
+#endif
         else
         {
             DexScreen_InputHandler_StartToCry();
@@ -2852,6 +2865,227 @@ void DexScreen_PrintMonWeight(u8 windowId, u16 species, u8 x, u8 y)
     DexScreen_AddTextPrinterParameterized(windowId, FONT_SMALL, buffer, x, y, 0);
 }
 
+
+#if DIFF_EXTRAS
+// Extra Pokedex pages (SELECT): base stats and evolutions.
+extern const struct Evolution gEvolutionTable[NUM_SPECIES][EVOS_PER_MON];
+
+static EWRAM_DATA u8 sDexInfoMode = 0;
+
+static const u8 sText_DexInfoHint[] = _("{SELECT_BUTTON}INFO {A_BUTTON}NEXT DATA {B_BUTTON}CANCEL");
+static const u8 sText_HP[] = _("HP ");
+static const u8 sText_Atk[] = _("  ATK ");
+static const u8 sText_Def[] = _("  DEF ");
+static const u8 sText_SpAtk[] = _("SPA ");
+static const u8 sText_SpDef[] = _("  SPD ");
+static const u8 sText_Speed[] = _("  SPE ");
+static const u8 sText_Total[] = _("TOTAL ");
+static const u8 sText_Type[] = _("  TYPE ");
+static const u8 sText_Slash[] = _("/");
+static const u8 sText_Ability[] = _("ABILITY ");
+static const u8 sText_From[] = _("FROM: ");
+static const u8 sText_To[] = _("TO: ");
+static const u8 sText_ToMore[] = _("      ");
+static const u8 sText_None[] = _("--");
+static const u8 sText_Lv[] = _("Lv.");
+static const u8 sText_Friendship[] = _("Friendship");
+static const u8 sText_FriendshipDay[] = _("Friendship, day");
+static const u8 sText_FriendshipNight[] = _("Friendship, night");
+static const u8 sText_Trade[] = _("Trade");
+static const u8 sText_TradeHolding[] = _("Trade holding ");
+static const u8 sText_AtkGtDef[] = _(", ATK>DEF");
+static const u8 sText_AtkEqDef[] = _(", ATK=DEF");
+static const u8 sText_AtkLtDef[] = _(", ATK<DEF");
+static const u8 sText_Random[] = _(", by chance");
+static const u8 sText_SpareSlot[] = _(", free slot");
+static const u8 sText_Beauty[] = _("Beauty ");
+static const u8 sText_OpenParen[] = _(" (");
+static const u8 sText_CloseParen[] = _(")");
+
+void DexScreen_PrintMonFlavorText(u8 windowId, u16 species, u8 x, u8 y);
+
+static void DexInfoAppendNum(u8 *dst, u16 n)
+{
+    ConvertIntToDecimalStringN(dst + StringLength(dst), n, STR_CONV_MODE_LEFT_ALIGN, 3);
+}
+
+static void DexInfoAppend(u8 *dst, const u8 *src)
+{
+    StringAppend(dst, src);
+}
+
+static void DexInfoAppendEvoMethod(u8 *dst, const struct Evolution *evo)
+{
+    switch (evo->method)
+    {
+    case EVO_FRIENDSHIP:
+        DexInfoAppend(dst, sText_Friendship);
+        break;
+    case EVO_FRIENDSHIP_DAY:
+        DexInfoAppend(dst, sText_FriendshipDay);
+        break;
+    case EVO_FRIENDSHIP_NIGHT:
+        DexInfoAppend(dst, sText_FriendshipNight);
+        break;
+    case EVO_TRADE:
+        DexInfoAppend(dst, sText_Trade);
+        break;
+    case EVO_TRADE_ITEM:
+        DexInfoAppend(dst, sText_TradeHolding);
+        DexInfoAppend(dst, ItemId_GetName(evo->param));
+        break;
+    case EVO_ITEM:
+        DexInfoAppend(dst, ItemId_GetName(evo->param));
+        break;
+    case EVO_BEAUTY:
+        DexInfoAppend(dst, sText_Beauty);
+        DexInfoAppendNum(dst, evo->param);
+        break;
+    default: // all the level based methods
+        DexInfoAppend(dst, sText_Lv);
+        DexInfoAppendNum(dst, evo->param);
+        if (evo->method == EVO_LEVEL_ATK_GT_DEF)
+            DexInfoAppend(dst, sText_AtkGtDef);
+        else if (evo->method == EVO_LEVEL_ATK_EQ_DEF)
+            DexInfoAppend(dst, sText_AtkEqDef);
+        else if (evo->method == EVO_LEVEL_ATK_LT_DEF)
+            DexInfoAppend(dst, sText_AtkLtDef);
+        else if (evo->method == EVO_LEVEL_SILCOON || evo->method == EVO_LEVEL_CASCOON)
+            DexInfoAppend(dst, sText_Random);
+        else if (evo->method == EVO_LEVEL_SHEDINJA)
+            DexInfoAppend(dst, sText_SpareSlot);
+        break;
+    }
+}
+
+static void DexInfoPrintLine(u8 windowId, u8 line)
+{
+    DexScreen_AddTextPrinterParameterized(windowId, FONT_SMALL, gStringVar4, 4, 1 + line * 13, 0);
+}
+
+static void DexInfoStartLine(const u8 *prefix)
+{
+    StringCopy(gStringVar4, prefix);
+}
+
+static void DexInfoPrintStats(u8 windowId, u16 species)
+{
+    u16 total;
+    const struct SpeciesInfo *info = &gSpeciesInfo[species];
+    u8 ability0 = GetAbilityBySpecies(species, 0);
+    u8 ability1 = GetAbilityBySpecies(species, 1);
+
+    DexInfoStartLine(sText_HP);
+    DexInfoAppendNum(gStringVar4, info->baseHP);
+    DexInfoAppend(gStringVar4, sText_Atk);
+    DexInfoAppendNum(gStringVar4, info->baseAttack);
+    DexInfoAppend(gStringVar4, sText_Def);
+    DexInfoAppendNum(gStringVar4, info->baseDefense);
+    DexInfoPrintLine(windowId, 0);
+
+    DexInfoStartLine(sText_SpAtk);
+    DexInfoAppendNum(gStringVar4, info->baseSpAttack);
+    DexInfoAppend(gStringVar4, sText_SpDef);
+    DexInfoAppendNum(gStringVar4, info->baseSpDefense);
+    DexInfoAppend(gStringVar4, sText_Speed);
+    DexInfoAppendNum(gStringVar4, info->baseSpeed);
+    DexInfoPrintLine(windowId, 1);
+
+    total = info->baseHP + info->baseAttack + info->baseDefense + info->baseSpAttack + info->baseSpDefense + info->baseSpeed;
+    DexInfoStartLine(sText_Total);
+    DexInfoAppendNum(gStringVar4, total);
+    DexInfoAppend(gStringVar4, sText_Type);
+    DexInfoAppend(gStringVar4, gTypeNames[info->types[0]]);
+    if (info->types[1] != info->types[0])
+    {
+        DexInfoAppend(gStringVar4, sText_Slash);
+        DexInfoAppend(gStringVar4, gTypeNames[info->types[1]]);
+    }
+    DexInfoPrintLine(windowId, 2);
+
+    DexInfoStartLine(sText_Ability);
+    DexInfoAppend(gStringVar4, gAbilityNames[ability0]);
+    if (ability1 != ability0 && ability1 != 0)
+    {
+        DexInfoAppend(gStringVar4, sText_Slash);
+        DexInfoAppend(gStringVar4, gAbilityNames[ability1]);
+    }
+    DexInfoPrintLine(windowId, 3);
+}
+
+static void DexInfoPrintEvolutions(u8 windowId, u16 species)
+{
+    u16 s, line = 1;
+    u8 k;
+    bool8 found = FALSE;
+
+    DexInfoStartLine(sText_From);
+    for (s = 1; s < NUM_SPECIES && !found; s++)
+    {
+        for (k = 0; k < EVOS_PER_MON; k++)
+        {
+            const struct Evolution *evo = &gEvolutionTable[s][k];
+
+            if (evo->method != 0 && evo->targetSpecies == species)
+            {
+                DexInfoAppend(gStringVar4, gSpeciesNames[s]);
+                DexInfoAppend(gStringVar4, sText_OpenParen);
+                DexInfoAppendEvoMethod(gStringVar4, evo);
+                DexInfoAppend(gStringVar4, sText_CloseParen);
+                found = TRUE;
+                break;
+            }
+        }
+    }
+    if (!found)
+        DexInfoAppend(gStringVar4, sText_None);
+    DexInfoPrintLine(windowId, 0);
+
+    for (k = 0; k < EVOS_PER_MON && line < 4; k++)
+    {
+        const struct Evolution *evo = &gEvolutionTable[species][k];
+
+        if (evo->method == 0 || evo->targetSpecies == SPECIES_NONE)
+            continue;
+        DexInfoStartLine(line == 1 ? sText_To : sText_ToMore);
+        DexInfoAppend(gStringVar4, gSpeciesNames[evo->targetSpecies]);
+        DexInfoAppend(gStringVar4, sText_OpenParen);
+        DexInfoAppendEvoMethod(gStringVar4, evo);
+        DexInfoAppend(gStringVar4, sText_CloseParen);
+        DexInfoPrintLine(windowId, line);
+        line++;
+    }
+    if (line == 1)
+    {
+        DexInfoStartLine(sText_To);
+        DexInfoAppend(gStringVar4, sText_None);
+        DexInfoPrintLine(windowId, 1);
+    }
+}
+
+static void DexScreen_PrintInfoWindow(void)
+{
+    u8 windowId = sPokedexScreenData->windowIds[2];
+    u16 species = sPokedexScreenData->dexSpecies;
+
+    FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
+    if (sDexInfoMode == 1)
+        DexInfoPrintStats(windowId, species);
+    else if (sDexInfoMode == 2)
+        DexInfoPrintEvolutions(windowId, species);
+    else
+        DexScreen_PrintMonFlavorText(windowId, species, 0, 8);
+    CopyWindowToVram(windowId, COPYWIN_GFX);
+}
+
+static void DexScreen_CycleInfoMode(void)
+{
+    PlaySE(SE_SELECT);
+    sDexInfoMode = (sDexInfoMode + 1) % 3;
+    DexScreen_PrintInfoWindow();
+}
+#endif // DIFF_EXTRAS
+
 void DexScreen_PrintMonFlavorText(u8 windowId, u16 species, u8 x, u8 y)
 {
     struct TextPrinterTemplate printerTemplate;
@@ -2923,6 +3157,9 @@ void DexScreen_DrawMonFootprint(u8 windowId, u16 species, u8 x, u8 y)
 
 static u8 DexScreen_DrawMonDexPage(bool8 justRegistered)
 {
+#if DIFF_EXTRAS
+    sDexInfoMode = 0;
+#endif
     DexScreen_DexPageZoomEffectFrame(3, 6);
     FillBgTilemapBufferRect_Palette0(2, 0, 0, 0, 30, 20);
     FillBgTilemapBufferRect_Palette0(1, 0, 0, 0, 30, 20);
@@ -2960,7 +3197,11 @@ static u8 DexScreen_DrawMonDexPage(bool8 justRegistered)
     if (justRegistered == FALSE)
     {
         DexScreen_AddTextPrinterParameterized(1, FONT_SMALL, gText_Cry, 8, 2, 4);
+#if DIFF_EXTRAS
+        DexScreen_PrintControlInfo(sText_DexInfoHint);
+#else
         DexScreen_PrintControlInfo(gText_NextDataCancel);
+#endif
     }
     else
         // Just registered
