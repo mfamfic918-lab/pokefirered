@@ -95,8 +95,27 @@
 #define DIFF_RANDOM_NPC_TEAMS   0
 #endif
 
+// Options chosen in Oak's speech, stored in VAR_0x40F4
+#define DIFFOPT_SHINY_CLAUSE     (1 << 0)  // Nuzlocke: shiny Pokemon can always be caught
+#define DIFFOPT_RANDOM_ITEMS     (1 << 1)  // items on the ground are random
+#define DIFFOPT_RANDOM_STARTERS  (1 << 2)  // random starters
+#define DIFFOPT_RANDOM_MOVES     (1 << 3)  // random starting moves
+#define DIFFOPT_RANDOM_ABILITIES (1 << 4)  // random abilities
+#define DIFFOPT_TM_VENDOR        (1 << 5)  // random-TM vendor in the Marts
+#define DIFFOPT_DEATH_MODE       (1 << 6)  // Hard only: see DiffOptions_AdjustTrainerParty
+#define DIFFOPT_NUZLOCKE         (1 << 7)
+#define DIFFOPT_MONO_SHIFT       8         // bits 8-12: mono-type starters (type + 1, 0 = off)
+
 #if DIFF_NUZLOCKE
-extern bool8 gDiffNuzlockeChoice;
+extern u16 gDiffOptionsChoice;
+bool8 DiffOpt(u16 mask);
+u8 DiffOpt_MonoType(void);
+void DiffOptions_ApplyNewGame(void);
+u16 DiffOptions_RemapStarter(u16 species, u8 level);
+u16 DiffOptions_RandomFoundItem(u16 item);
+u8 DiffOptions_RandomAbility(u16 species, bool8 abilityNum);
+struct Pokemon;
+void DiffOptions_AdjustTrainerParty(struct Pokemon *party, u8 count);
 bool8 DiffNuzlocke_IsActive(void);
 void DiffNuzlocke_OnWildBattleStart(void);
 bool8 DiffNuzlocke_CanCatch(void);

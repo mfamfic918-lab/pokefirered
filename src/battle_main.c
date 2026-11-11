@@ -46,7 +46,7 @@
 
 // Level of a trainer's Pokemon, adjusted for the selected difficulty
 #if DIFFICULTY != DIFFICULTY_VANILLA
-#define TRAINER_MON_LEVEL(lvl) DIFF_SCALE_LEVEL(lvl, DIFF_TRAINER_LEVEL_PERCENT)
+#define TRAINER_MON_LEVEL(lvl) (DiffOpt(DIFFOPT_DEATH_MODE) ? (lvl) + 4 : DIFF_SCALE_LEVEL(lvl, DIFF_TRAINER_LEVEL_PERCENT))
 #else
 #define TRAINER_MON_LEVEL(lvl) (lvl)
 #endif
@@ -115,7 +115,7 @@ static u16 GetRandomizedTrainerSpecies(u16 trainerNum, u8 slot, u16 species)
     return species;
 }
 
-#define TRAINER_MON_SPECIES(trainerNum, slot, species) GetRandomizedTrainerSpecies(trainerNum, slot, species)
+#define TRAINER_MON_SPECIES(trainerNum, slot, species) (DiffOpt(DIFFOPT_DEATH_MODE) ? (species) : GetRandomizedTrainerSpecies(trainerNum, slot, species))
 #else
 #define TRAINER_MON_SPECIES(trainerNum, slot, species) (species)
 #endif
@@ -1714,6 +1714,9 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
         }
 
         gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;
+#if DIFF_EXTRAS
+        DiffOptions_AdjustTrainerParty(party, gTrainers[trainerNum].partySize);
+#endif
     }
 
     return gTrainers[trainerNum].partySize;

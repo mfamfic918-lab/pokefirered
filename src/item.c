@@ -726,6 +726,13 @@ static bool8 IsCheapHealingItem(u16 item)
 
 static void AdjustFoundItem(u16 *item, u16 *quantity)
 {
+    u16 randomItem = DiffOptions_RandomFoundItem(*item);
+    if (randomItem != *item)
+    {
+        *item = randomItem;
+        *quantity = 1;
+        return;
+    }
 #if DIFF_FOUND_HEAL_BONUS
     if (IsHealingItem(*item) && *quantity < 99)
         (*quantity)++;

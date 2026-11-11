@@ -263,6 +263,8 @@ void DiffNuzlocke_OnWildBattleStart(void)
     FlagClear(FLAG_DIFF_NUZLOCKE_NO_CATCH);
     if (!FlagGet(FLAG_DIFF_NUZLOCKE))
         return;
+    if (DiffOpt(DIFFOPT_SHINY_CLAUSE) && IsMonShiny(&gEnemyParty[0]))
+        return; // a shiny can always be caught and does not use up the area
     sec = GetCurrentRegionMapSectionId();
     if (sec < KANTO_MAPSEC_START || sec - KANTO_MAPSEC_START >= NUZ_AREA_COUNT)
         return;

@@ -152,11 +152,10 @@ void NewGameInitData(void)
     ResetTrainerTowerResults();
 #if !DIFF_EXTRAS
     FlagSet(FLAG_DIFF_HIDE_EXTRA_NPCS);
+    FlagSet(FLAG_DIFF_HIDE_TM_VENDOR);
 #endif
 #if DIFF_NUZLOCKE
-    if (gDiffNuzlockeChoice)
-        FlagSet(FLAG_DIFF_NUZLOCKE);
-    gDiffNuzlockeChoice = FALSE;
+    DiffOptions_ApplyNewGame();
 #endif
 }
 
