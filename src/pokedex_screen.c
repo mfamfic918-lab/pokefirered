@@ -1779,6 +1779,12 @@ static void Task_DexScreen_CategorySubmenu(u8 taskId)
         {
             sPokedexScreenData->state = 18;
         }
+#if DIFF_EXTRAS
+        else if (JOY_NEW(SELECT_BUTTON))
+        {
+            DexScreen_CycleInfoMode();
+        }
+#endif
         else
         {
             DexScreen_InputHandler_StartToCry();
